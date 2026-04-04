@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useSessions, useOverviewStats } from '../api/hooks'
-import type { SessionFilters } from '../api/hooks'
+import type { SessionFilters, Session } from '../api/hooks'
 import Filters from '../components/shared/Filters'
 import SessionList from '../components/sessions/SessionList'
 
@@ -50,8 +50,28 @@ export default function Sessions() {
     }
   )
 
-  const { data: sessions, isLoading } = useSessions(filters)
+  const { data: sessions, isLoading, isFetching } = useSessions(filters)
   const hasMore = (sessions?.length ?? 0) >= PAGE_SIZE
+
+  // Accumula le sessioni tra le pagine invece di sostituirle
+  const [allSessions, setAllSessions] = useState<Session[]>([])
+  const prevOffsetRef = useRef(filters.offset ?? 0)
+
+  useEffect(() => {
+    if (!sessions) return
+    const currentOffset = filters.offset ?? 0
+    if (currentOffset === 0) {
+      // Reset (cambio filtri): sostituisci
+      setAllSessions(sessions)
+    } else if (currentOffset > prevOffsetRef.current) {
+      // Load more: appendi senza duplicati
+      setAllSessions((prev) => {
+        const ids = new Set(prev.map((s) => s.id))
+        return [...prev, ...sessions.filter((s) => !ids.has(s.id))]
+      })
+    }
+    prevOffsetRef.current = currentOffset
+  }, [sessions, filters.offset])
 
   // Totale token del periodo filtrato (chiama overview con gli stessi filtri data/progetto)
   const statsFilters = useMemo(() => ({
@@ -100,6 +120,8 @@ export default function Sessions() {
   const handleFiltersChange = useCallback((next: SessionFilters) => {
     sessionStorage.removeItem(SCROLL_KEY)
     sessionStorage.removeItem(FILTERS_KEY)
+    setAllSessions([])
+    prevOffsetRef.current = 0
     setFilters({ ...next, limit: PAGE_SIZE, offset: 0 })
   }, [])
 
@@ -160,8 +182,9 @@ export default function Sessions() {
       <Filters filters={filters} onChange={handleFiltersChange} />
 
       <SessionList
-        sessions={sessions ?? []}
-        isLoading={isLoading}
+        sessions={allSessions}
+        isLoading={isLoading && allSessions.length === 0}
+        isLoadingMore={isFetching && allSessions.length > 0}
         hasMore={hasMore}
         onLoadMore={handleLoadMore}
       />

@@ -96,18 +96,7 @@ export default function UsageHeatmap() {
   const totalTokens   = (data ?? []).reduce((s, d) => s + d.totalTokens, 0)
   const activeDays    = (data ?? []).filter((d) => d.sessions > 0).length
 
-  const currentStreak = (() => {
-    let streak = 0
-    const d = new Date()
-    while (true) {
-      const iso = localISO(d)
-      if ((dayMap.get(iso)?.sessions ?? 0) > 0) { streak++; d.setDate(d.getDate() - 1) }
-      else break
-    }
-    return streak
-  })()
-
-  const CELL = 13, GAP = 3, STEP = CELL + GAP
+const CELL = 13, GAP = 3, STEP = CELL + GAP
 
   return (
     <div className="bg-gray-800/70 rounded-2xl p-5 border border-gray-700/60">
@@ -121,7 +110,6 @@ export default function UsageHeatmap() {
             { value: totalSessions, label: 'sessioni', color: 'text-blue-400' },
             { value: formatTokens(totalTokens), label: 'token', color: 'text-violet-400' },
             { value: activeDays, label: 'giorni attivi', color: 'text-gray-200' },
-            { value: currentStreak, label: 'streak', color: 'text-emerald-400' },
           ].map(({ value, label, color }) => (
             <div key={label} className="text-right">
               <p className={`text-lg font-bold ${color}`}>{value}</p>

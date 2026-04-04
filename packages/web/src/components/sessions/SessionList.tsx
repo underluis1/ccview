@@ -4,6 +4,7 @@ import SessionCard from './SessionCard'
 interface SessionListProps {
   sessions: Session[]
   isLoading: boolean
+  isLoadingMore?: boolean
   hasMore?: boolean
   onLoadMore?: () => void
 }
@@ -37,7 +38,7 @@ function EmptyState() {
   )
 }
 
-export default function SessionList({ sessions, isLoading, hasMore, onLoadMore }: SessionListProps) {
+export default function SessionList({ sessions, isLoading, isLoadingMore, hasMore, onLoadMore }: SessionListProps) {
   if (isLoading && sessions.length === 0) {
     return (
       <div className="grid gap-3">
@@ -63,10 +64,10 @@ export default function SessionList({ sessions, isLoading, hasMore, onLoadMore }
         <div className="mt-4 flex justify-center">
           <button
             onClick={onLoadMore}
-            disabled={isLoading}
+            disabled={isLoadingMore}
             className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-800 border border-gray-600 rounded-lg hover:bg-gray-700 disabled:opacity-50 transition-colors"
           >
-            {isLoading ? 'Loading...' : 'Load more'}
+            {isLoadingMore ? 'Caricamento...' : 'Carica altri'}
           </button>
         </div>
       )}

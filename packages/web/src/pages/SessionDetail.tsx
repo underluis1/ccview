@@ -1,7 +1,80 @@
+import { useState, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { useSession, useSessionSteps, useSessionFiles } from '../api/hooks'
+import { apiFetch } from '../api/client'
 import SessionTimeline from '../components/sessions/SessionTimeline'
 import SessionSidebar from '../components/sessions/SessionSidebar'
+import type { Session } from '../api/hooks'
+
+function EditableSessionTitle({ session }: { session: Session }) {
+  const queryClient = useQueryClient()
+  const [editing, setEditing] = useState(false)
+  const [value, setValue] = useState('')
+  const [saving, setSaving] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const startEdit = () => {
+    setValue(session.summary ?? '')
+    setEditing(true)
+    setTimeout(() => inputRef.current?.select(), 0)
+  }
+
+  const cancel = () => setEditing(false)
+
+  const save = async () => {
+    if (saving) return
+    setSaving(true)
+    try {
+      await apiFetch(`/sessions/${session.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ summary: value }),
+      })
+      queryClient.invalidateQueries({ queryKey: ['session', session.id] })
+      queryClient.invalidateQueries({ queryKey: ['sessions'] })
+    } finally {
+      setSaving(false)
+      setEditing(false)
+    }
+  }
+
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') { e.preventDefault(); void save() }
+    if (e.key === 'Escape') cancel()
+  }
+
+  if (editing) {
+    return (
+      <input
+        ref={inputRef}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onBlur={() => void save()}
+        onKeyDown={onKeyDown}
+        disabled={saving}
+        className="w-full bg-gray-700 border border-blue-500 rounded-lg px-3 py-1
+                   text-xl font-bold text-gray-100 focus:outline-none disabled:opacity-60"
+        placeholder="Nome sessione..."
+      />
+    )
+  }
+
+  return (
+    <button onClick={startEdit} className="group flex items-center gap-2 min-w-0 text-left">
+      <h1 className="text-xl font-bold text-gray-100 truncate">
+        {session.summary ?? 'Sessione senza titolo'}
+      </h1>
+      <svg
+        className="w-4 h-4 text-gray-600 group-hover:text-gray-400 shrink-0 transition-colors"
+        fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+      >
+        <path strokeLinecap="round" strokeLinejoin="round"
+          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+      </svg>
+    </button>
+  )
+}
 
 export default function SessionDetail() {
   const { id } = useParams<{ id: string }>()
@@ -59,11 +132,10 @@ export default function SessionDetail() {
           <span>Sessioni</span>
         </button>
 
-        <div className="min-w-0">
-          <h1 className="text-xl font-bold text-gray-100 truncate">
-            {session.projectName ?? 'Progetto sconosciuto'}
-          </h1>
-          <p className="text-sm text-gray-400 truncate">
+        <div className="min-w-0 flex-1">
+          <EditableSessionTitle session={session} />
+          <p className="text-sm text-gray-400 truncate mt-0.5">
+            {session.projectName && <span className="mr-2">{session.projectName} ·</span>}
             {new Date(session.startedAt).toLocaleString('it-IT')}
             {session.model && <span className="ml-2 text-gray-500">· {session.model}</span>}
           </p>

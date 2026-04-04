@@ -19,8 +19,8 @@ const sessionsRoutes: FastifyPluginAsync = async (fastify) => {
 
     const filters: SessionFilters = {}
     if (project) filters.project = project
-    if (from) filters.from = new Date(from)
-    if (to) filters.to = new Date(to)
+    if (from) filters.from = new Date(from + 'T00:00:00')
+    if (to)   filters.to   = new Date(to   + 'T23:59:59')
     if (model) filters.model = model
     if (search) filters.search = search
     if (limit) filters.limit = parseInt(limit, 10)
@@ -37,6 +37,23 @@ const sessionsRoutes: FastifyPluginAsync = async (fastify) => {
       return reply.code(404).send({ error: 'Session not found' })
     }
     return { data: session }
+  })
+
+  // PATCH /api/sessions/:id — aggiorna il nome (summary)
+  fastify.patch<{
+    Params: { id: string }
+    Body: { summary: string }
+  }>('/sessions/:id', async (request, reply) => {
+    const { id } = request.params
+    const { summary } = request.body
+    if (typeof summary !== 'string') {
+      return reply.code(400).send({ error: 'summary must be a string' })
+    }
+    const trimmed = summary.trim()
+    fastify.db.prepare(`UPDATE sessions SET summary = ? WHERE id = ?`).run(trimmed || null, id)
+    const updated = getSessionById(fastify.db, id)
+    if (!updated) return reply.code(404).send({ error: 'Session not found' })
+    return { data: updated }
   })
 
   // GET /api/sessions/:id/steps

@@ -9,7 +9,6 @@ import sessionsRoutes from './routes/sessions.js'
 import projectsRoutes from './routes/projects.js'
 import analyticsRoutes from './routes/analytics.js'
 import configRoutes from './routes/config.js'
-import syncRoutes from './routes/sync.js'
 
 const DEFAULT_PORT = 3200
 
@@ -22,7 +21,6 @@ export async function createServer(port = DEFAULT_PORT) {
   await fastify.register(projectsRoutes, { prefix: '/api' })
   await fastify.register(analyticsRoutes, { prefix: '/api' })
   await fastify.register(configRoutes, { prefix: '/api' })
-  await fastify.register(syncRoutes, { prefix: '/api' })
 
   // Serve la React app buildata (se esiste)
   const webDistPath = path.join(fileURLToPath(import.meta.url), '../../../../web/dist')

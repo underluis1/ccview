@@ -63,8 +63,8 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
     const { from, to } = request.query
     const data = getOverviewStats(
       fastify.db,
-      from ? new Date(from) : undefined,
-      to ? new Date(to) : undefined,
+      from ? new Date(from + 'T00:00:00') : undefined,
+      to   ? new Date(to   + 'T23:59:59') : undefined,
     )
     return { data }
   })
