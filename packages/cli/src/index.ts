@@ -22,8 +22,11 @@ program.addCommand(configCommand)
 program.addCommand(serveCommand)
 
 // Default command (no subcommand): serve
-program.action(async () => {
-  await serveCommand.parseAsync(['serve'], { from: 'user' })
-})
+program
+  .option('-p, --port <number>', 'Port number', '3200')
+  .option('--no-open', 'Do not open browser automatically')
+  .action(async (opts: { port: string; open: boolean }) => {
+    await serveCommand.parseAsync(['serve', '--port', opts.port, ...(opts.open ? [] : ['--no-open'])], { from: 'user' })
+  })
 
 program.parse()
