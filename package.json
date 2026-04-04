@@ -1,0 +1,27 @@
+{
+  "name": "ccview",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Claude Code session viewer and analytics dashboard",
+  "scripts": {
+    "dev": "pnpm --filter @ccview/core build && pnpm --filter @ccview/server build && (pnpm --filter @ccview/core build:watch & pnpm --filter @ccview/server start & pnpm --filter @ccview/web dev)",
+    "dev:web": "pnpm --filter @ccview/web dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "lint": "eslint packages/*/src --ext .ts,.tsx",
+    "typecheck": "pnpm -r typecheck",
+    "clean": "pnpm -r clean"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.1.0"
+}

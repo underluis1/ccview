@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.db
+
+# Internal specs & planning docs
+internal/
+
+# OS
+.DS_Store
+
+# Env
+.env
+.env.*
