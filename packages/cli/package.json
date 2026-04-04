@@ -1,12 +1,31 @@
 {
-  "name": "@ccview/cli",
+  "name": "ccview",
   "version": "0.1.0",
-  "description": "CLI for ccview — Claude Code session viewer",
+  "description": "Claude Code sessions dashboard — visualize costs, files and decisions. Local. Private.",
+  "license": "MIT",
+  "author": "underluis1",
+  "keywords": [
+    "claude",
+    "claude-code",
+    "anthropic",
+    "dashboard",
+    "analytics",
+    "ai",
+    "cli"
+  ],
+  "homepage": "https://github.com/underluis1/ccview",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/underluis1/ccview.git"
+  },
   "type": "module",
   "bin": {
     "ccview": "./dist/index.js"
   },
   "main": "./dist/index.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
@@ -16,6 +35,7 @@
   },
   "dependencies": {
     "@ccview/core": "workspace:*",
+    "@ccview/server": "workspace:*",
     "commander": "^12.0.0",
     "chalk": "^5.3.0",
     "cli-table3": "^0.6.3",
@@ -25,5 +45,8 @@
   "devDependencies": {
     "@types/node": "^20.12.7",
     "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

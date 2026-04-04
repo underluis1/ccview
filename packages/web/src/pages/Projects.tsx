@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { apiFetch } from '../api/client'
@@ -46,7 +47,7 @@ const MODEL_COLORS: Record<string, string> = {
 }
 
 function ModelBadge({ model }: { model: string }) {
-  const cls = MODEL_COLORS[model] ?? MODEL_COLORS.unknown
+  const cls = MODEL_COLORS[model] ?? MODEL_COLORS['unknown']
   return (
     <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${cls}`}>
       {model}
@@ -54,12 +55,13 @@ function ModelBadge({ model }: { model: string }) {
   )
 }
 
-function ModelBreakdownTooltip({ breakdown }: { breakdown: ModelBreakdown[] }) {
+function ModelBreakdownTooltip({ breakdown, x, y }: { breakdown: ModelBreakdown[], x: number, y: number }) {
   if (!breakdown.length) return null
-  return (
-    <div className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-64
-                    bg-gray-900 border border-gray-700 rounded-xl p-3 shadow-2xl
-                    text-xs pointer-events-none">
+  return createPortal(
+    <div
+      className="fixed z-[9999] w-64 bg-gray-900 border border-gray-700 rounded-xl p-3 shadow-2xl text-xs pointer-events-none"
+      style={{ left: x, top: y - 8, transform: 'translate(-50%, -100%)' }}
+    >
       <p className="text-gray-500 uppercase tracking-widest mb-2 text-[10px]">Breakdown per modello</p>
       {breakdown.map((b) => (
         <div key={b.model} className="flex items-center justify-between py-1 border-b border-gray-800 last:border-0">
@@ -73,7 +75,8 @@ function ModelBreakdownTooltip({ breakdown }: { breakdown: ModelBreakdown[] }) {
       <p className="mt-2 text-gray-600 leading-tight">
         * Prezzi API Anthropic. Non riflettono il costo del piano Claude Code.
       </p>
-    </div>
+    </div>,
+    document.body
   )
 }
 
@@ -85,7 +88,7 @@ export default function Projects() {
   const [sortKey, setSortKey] = useState<SortKey>('totalTokens')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
   const [search, setSearch] = useState('')
-  const [hoveredPath, setHoveredPath] = useState<string | null>(null)
+  const [hoveredInfo, setHoveredInfo] = useState<{ path: string; x: number; y: number } | null>(null)
 
   const { data, isLoading, error } = useQuery<Project[]>({
     queryKey: ['projects'],
@@ -283,15 +286,18 @@ export default function Projects() {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div
-                      className="relative inline-block group"
-                      onMouseEnter={() => setHoveredPath(project.path)}
-                      onMouseLeave={() => setHoveredPath(null)}
+                      className="inline-block"
+                      onMouseEnter={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect()
+                        setHoveredInfo({ path: project.path, x: rect.left + rect.width / 2, y: rect.top })
+                      }}
+                      onMouseLeave={() => setHoveredInfo(null)}
                     >
                       <span className="text-amber-400 font-medium tabular-nums">
                         {project.totalCostUsd > 0 ? formatCost(project.totalCostUsd) : '—'}
                       </span>
-                      {hoveredPath === project.path && (project.modelBreakdown ?? []).length > 1 && (
-                        <ModelBreakdownTooltip breakdown={project.modelBreakdown} />
+                      {hoveredInfo?.path === project.path && (project.modelBreakdown ?? []).length > 1 && (
+                        <ModelBreakdownTooltip breakdown={project.modelBreakdown} x={hoveredInfo.x} y={hoveredInfo.y} />
                       )}
                     </div>
                   </td>

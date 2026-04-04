@@ -61,7 +61,7 @@ function EditableSessionTitle({ session }: { session: Session }) {
   }
 
   return (
-    <button onClick={startEdit} className="group flex items-center gap-2 min-w-0 text-left">
+    <button onClick={startEdit} className="group flex items-center gap-2 min-w-0 overflow-hidden text-left w-full">
       <h1 className="text-xl font-bold text-gray-100 truncate">
         {session.summary ?? 'Sessione senza titolo'}
       </h1>

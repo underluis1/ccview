@@ -5,6 +5,9 @@ node_modules/
 dist/
 *.db
 
+# Web app embedded nel server package (generato da copy-web)
+packages/server/web-dist/
+
 # Internal specs & planning docs
 internal/
 

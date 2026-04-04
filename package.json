@@ -10,7 +10,10 @@
     "test": "pnpm -r test",
     "lint": "eslint packages/*/src --ext .ts,.tsx",
     "typecheck": "pnpm -r typecheck",
-    "clean": "pnpm -r clean"
+    "clean": "pnpm -r clean",
+    "publish:prepare": "pnpm --filter @ccview/web build && pnpm --filter @ccview/core build && pnpm --filter @ccview/server build && pnpm --filter @ccview/server copy-web && pnpm --filter ccview build",
+    "publish:dry": "pnpm run publish:prepare && pnpm --filter ccview publish --dry-run --no-git-checks",
+    "publish:npm": "pnpm run publish:prepare && pnpm --filter @ccview/core publish --no-git-checks && pnpm --filter @ccview/server publish --no-git-checks && pnpm --filter ccview publish --no-git-checks"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.0.0",

@@ -29,6 +29,9 @@ importers:
       '@ccview/core':
         specifier: workspace:*
         version: link:../core
+      '@ccview/server':
+        specifier: workspace:*
+        version: link:../server
       chalk:
         specifier: ^5.3.0
         version: 5.6.2

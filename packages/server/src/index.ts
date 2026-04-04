@@ -23,7 +23,12 @@ export async function createServer(port = DEFAULT_PORT) {
   await fastify.register(configRoutes, { prefix: '/api' })
 
   // Serve la React app buildata (se esiste)
-  const webDistPath = path.join(fileURLToPath(import.meta.url), '../../../../web/dist')
+  // In npm package: web-dist/ è dentro @ccview/server/
+  // In monorepo dev:  packages/web/dist/
+  const serverDir = path.dirname(fileURLToPath(import.meta.url))
+  const webDistNpm = path.join(serverDir, '../web-dist')
+  const webDistDev = path.join(serverDir, '../../web/dist')
+  const webDistPath = fs.existsSync(webDistNpm) ? webDistNpm : webDistDev
   if (fs.existsSync(webDistPath)) {
     await fastify.register(staticFiles, { root: webDistPath, prefix: '/' })
     fastify.setNotFoundHandler((req, reply) => {

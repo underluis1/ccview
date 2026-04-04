@@ -40,15 +40,14 @@ export default function Sessions() {
     } catch { return null }
   }, [hasUrlFilters])
 
-  const [filters, setFilters] = useState<SessionFilters>(
-    savedFilters ?? {
-      limit: PAGE_SIZE,
-      offset: 0,
-      project: urlProject,
-      from: urlFrom,
-      to: urlTo,
-    }
-  )
+  const [filters, setFilters] = useState<SessionFilters>(() => {
+    if (savedFilters) return savedFilters
+    const base: SessionFilters = { limit: PAGE_SIZE, offset: 0 }
+    if (urlProject) base.project = urlProject
+    if (urlFrom) base.from = urlFrom
+    if (urlTo) base.to = urlTo
+    return base
+  })
 
   const { data: sessions, isLoading, isFetching } = useSessions(filters)
   const hasMore = (sessions?.length ?? 0) >= PAGE_SIZE
@@ -74,11 +73,13 @@ export default function Sessions() {
   }, [sessions, filters.offset])
 
   // Totale token del periodo filtrato (chiama overview con gli stessi filtri data/progetto)
-  const statsFilters = useMemo(() => ({
-    from: filters.from,
-    to: filters.to,
-    project: filters.project,
-  }), [filters.from, filters.to, filters.project])
+  const statsFilters = useMemo(() => {
+    const f: { from?: string; to?: string; project?: string } = {}
+    if (filters.from) f.from = filters.from
+    if (filters.to) f.to = filters.to
+    if (filters.project) f.project = filters.project
+    return f
+  }, [filters.from, filters.to, filters.project])
   const { data: stats } = useOverviewStats(statsFilters)
 
   const containerRef = useRef<HTMLDivElement>(null)

@@ -1,15 +1,21 @@
 {
   "name": "@ccview/server",
   "version": "0.1.0",
-  "private": true,
+  "description": "Fastify API server for ccview — Claude Code session analytics",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
+  "files": [
+    "dist",
+    "web-dist"
+  ],
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
+    "copy-web": "node -e \"const{cpSync,mkdirSync}=require('fs');mkdirSync('./web-dist',{recursive:true});cpSync('../web/dist','./web-dist',{recursive:true,force:true});console.log('web-dist copied')\"",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist web-dist"
   },
   "dependencies": {
     "@ccview/core": "workspace:*",
@@ -22,5 +28,8 @@
     "@types/better-sqlite3": "^7.6.10",
     "@types/node": "^20.12.7",
     "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

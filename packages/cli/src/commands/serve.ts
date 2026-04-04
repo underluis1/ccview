@@ -1,11 +1,7 @@
 import { Command } from 'commander'
-import { existsSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import { spawn } from 'node:child_process'
-import { join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { printError, printInfo, printSuccess } from '../utils/terminal-ui.js'
-
-const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 export const serveCommand = new Command('serve')
   .description('Start the ccview web dashboard')
@@ -14,13 +10,15 @@ export const serveCommand = new Command('serve')
   .action(async (opts: { port: string; open: boolean }) => {
     try {
       const port = parseInt(opts.port, 10)
-      const serverEntry = join(__dirname, '..', '..', '..', 'server', 'dist', 'index.js')
 
-      if (!existsSync(serverEntry)) {
-        printInfo('Server not yet implemented, use API package')
-        printInfo(`Expected server entry at: ${serverEntry}`)
-        printInfo('Run "pnpm --filter @ccview/server build" first.')
-        return
+      // Risolve @ccview/server sia in monorepo (workspace symlink) che in npm install
+      const require = createRequire(import.meta.url)
+      let serverEntry: string
+      try {
+        serverEntry = require.resolve('@ccview/server')
+      } catch {
+        printError('Could not find @ccview/server. Run "pnpm build" first.')
+        process.exit(1)
       }
 
       printInfo(`Starting ccview server on port ${port}...`)
@@ -35,7 +33,6 @@ export const serveCommand = new Command('serve')
         process.exit(1)
       })
 
-      // Give server a moment to start, then open browser
       if (opts.open) {
         setTimeout(async () => {
           try {
@@ -48,13 +45,8 @@ export const serveCommand = new Command('serve')
         }, 1500)
       }
 
-      // Forward signals
-      process.on('SIGINT', () => {
-        child.kill('SIGINT')
-      })
-      process.on('SIGTERM', () => {
-        child.kill('SIGTERM')
-      })
+      process.on('SIGINT', () => { child.kill('SIGINT') })
+      process.on('SIGTERM', () => { child.kill('SIGTERM') })
     } catch (err) {
       printError(err instanceof Error ? err.message : String(err))
       process.exit(1)
