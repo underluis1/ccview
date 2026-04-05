@@ -6,6 +6,7 @@ interface ContentBlock {
   type: string
   text?: string
   thinking?: string
+  signature?: string
   name?: string
   id?: string
   input?: Record<string, unknown>
@@ -180,13 +181,16 @@ function parseAssistantEntry(
   const textParts: string[] = []
 
   for (const block of contentBlocks) {
-    if (block.type === 'thinking' && typeof block.thinking === 'string' && block.thinking.length > 0) {
+    if (block.type === 'thinking' && (typeof block.thinking === 'string' || 'signature' in block)) {
+      const thinkingText = typeof block.thinking === 'string' && block.thinking.length > 0
+        ? block.thinking
+        : '[Extended thinking — content redacted]'
       thinkingSteps.push({
         stepIndex: index,
         type: 'thinking' as StepType,
         subtype: null,
-        content: block.thinking,
-        contentSummary: truncate(block.thinking, 200),
+        content: thinkingText,
+        contentSummary: truncate(thinkingText, 200),
         tokensIn: 0,
         tokensOut: 0,
         cacheCreationTokens: 0,
