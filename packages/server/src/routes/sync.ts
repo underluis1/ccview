@@ -16,7 +16,8 @@ interface SyncResult {
 }
 
 const syncRoutes: FastifyPluginAsync = async (fastify) => {
-  fastify.post('/sync', async (_request, _reply) => {
+  fastify.post<{ Body: { force?: boolean } | undefined }>('/sync', async (request, _reply) => {
+    const force = (request.body as { force?: boolean } | undefined)?.force ?? false
     const db = fastify.db
     const projectsDir = join(homedir(), '.claude', 'projects')
 
@@ -33,7 +34,7 @@ const syncRoutes: FastifyPluginAsync = async (fastify) => {
     for (const file of sessionFiles) {
       const existingHash = existingMap.get(file.filePath)
 
-      if (existingHash === file.hash) {
+      if (!force && existingHash === file.hash) {
         result.skipped++
         continue
       }
@@ -41,10 +42,6 @@ const syncRoutes: FastifyPluginAsync = async (fastify) => {
       const isUpdate = existingMap.has(file.filePath)
 
       try {
-        if (isUpdate) {
-          db.prepare(`DELETE FROM sessions WHERE raw_log_path = ?`).run(file.filePath)
-        }
-
         const parsed = await parseSession(file.filePath)
 
         const totalCacheReadTokens = parsed.steps.reduce((sum, s) => sum + (s.cacheReadTokens ?? 0), 0)
@@ -55,7 +52,7 @@ const syncRoutes: FastifyPluginAsync = async (fastify) => {
           totalCacheReadTokens,
         )
 
-        indexSession(db, parsed, file.filePath, file.hash)
+        indexSession(db, parsed, file.filePath, file.hash, force)
 
         if (isUpdate) result.updated++
         else result.added++

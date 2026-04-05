@@ -204,10 +204,14 @@ export interface SyncResult {
   errors: Array<{ filePath: string; error: string }>
 }
 
-export function useSync() {
+export function useSync(force = false) {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: () => apiFetch<SyncResult>('/sync', { method: 'POST' }),
+    mutationFn: () => apiFetch<SyncResult>('/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ force }),
+    }),
     onSuccess: () => {
       void queryClient.invalidateQueries()
     },

@@ -85,7 +85,7 @@ const configRoutes: FastifyPluginAsync = async (fastify) => {
             totalCacheReadTokens,
           )
 
-          indexSession(fastify.db, parsed, file.filePath, hash)
+          indexSession(fastify.db, parsed, file.filePath, hash, force)
           newSessions++
         } catch (err) {
           errors.push({

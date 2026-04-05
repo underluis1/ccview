@@ -16,15 +16,16 @@ export function indexSession(
   entry: ParsedLogEntry,
   logPath: string,
   hash: string,
+  force = false,
 ): void {
   // Deduplication: check if a session with the same raw_log_path already exists
   const existing = getSessionByLogPath(db, logPath)
   if (existing) {
-    if (existing.logHash === hash) {
-      // Same file, same content — skip re-indexing
+    if (existing.logHash === hash && !force) {
+      // Same file, same content and not forced — skip re-indexing
       return
     }
-    // Same path but different hash (file was updated) — delete old and re-index
+    // Same path but different hash, or force re-index — delete old and re-insert
     deleteSessionById(db, existing.id)
   }
 
