@@ -17,15 +17,9 @@ export function openDatabase(dbPath = DEFAULT_DB_PATH): Database.Database {
   db.pragma('journal_mode = WAL')
   db.pragma('foreign_keys = ON')
 
-  const tableExists = db
-    .prepare<[], { cnt: number }>(
-      `SELECT COUNT(*) as cnt FROM sqlite_master WHERE type='table' AND name='sessions'`
-    )
-    .get()
-
-  if (!tableExists || tableExists.cnt === 0) {
-    initSchema(db)
-  }
+  // Esegui sempre initSchema: i CREATE TABLE IF NOT EXISTS sono idempotenti
+  // e runMigrations controlla internamente quali migrazioni sono già state applicate
+  initSchema(db)
 
   return db
 }

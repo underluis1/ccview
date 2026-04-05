@@ -1,4 +1,5 @@
 import type Database from 'better-sqlite3'
+import { getPricingForModel } from '../types.js'
 
 export const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS _migrations (
@@ -139,6 +140,7 @@ ORDER BY day DESC;
 `
 
 const INITIAL_VERSION = 1
+const RECALCULATE_COSTS_VERSION = 2
 
 export function initSchema(db: Database.Database): void {
   db.exec(SCHEMA_SQL)
@@ -153,5 +155,53 @@ export function initSchema(db: Database.Database): void {
     db.prepare(
       `INSERT INTO _migrations (version, name) VALUES (?, ?)`
     ).run(INITIAL_VERSION, 'initial_schema')
+  }
+
+  runMigrations(db)
+}
+
+function runMigrations(db: Database.Database): void {
+  // Migration 2: ricalcola i costi con il nuovo pricing per modello
+  const hasMigration2 = db
+    .prepare<[number], { version: number }>(`SELECT version FROM _migrations WHERE version = ?`)
+    .get(RECALCULATE_COSTS_VERSION)
+
+  if (!hasMigration2) {
+    const sessions = db
+      .prepare<[], { id: string; model: string | null; total_tokens_in: number; total_tokens_out: number }>(
+        `SELECT id, model, total_tokens_in, total_tokens_out FROM sessions`
+      )
+      .all()
+
+    const updateSession = db.prepare<[number, string]>(
+      `UPDATE sessions SET total_cost_usd = ? WHERE id = ?`
+    )
+
+    const txn = db.transaction(() => {
+      for (const s of sessions) {
+        const pricing = getPricingForModel(s.model)
+        const cost =
+          (s.total_tokens_in / 1_000_000) * pricing.inputPer1M +
+          (s.total_tokens_out / 1_000_000) * pricing.outputPer1M
+        updateSession.run(Math.round(cost * 1_000_000) / 1_000_000, s.id)
+      }
+
+      // Ricalcola i totali dei progetti
+      db.prepare(`
+        UPDATE projects
+        SET total_cost_usd = (
+          SELECT COALESCE(SUM(total_cost_usd), 0)
+          FROM sessions
+          WHERE project_path = projects.path
+        )
+      `).run()
+
+      db.prepare(`INSERT INTO _migrations (version, name) VALUES (?, ?)`).run(
+        RECALCULATE_COSTS_VERSION,
+        'recalculate_costs_with_updated_pricing'
+      )
+    })
+
+    txn()
   }
 }

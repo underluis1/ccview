@@ -3,7 +3,7 @@ import { parseStep, extractModel, extractUsage } from '../src/parser/step-parser
 import { parseSession } from '../src/parser/session-parser.js'
 import { extractFileImpacts } from '../src/parser/file-impact.js'
 import { estimateTokens, estimateCost } from '../src/parser/token-estimator.js'
-import { DEFAULT_PRICING } from '../src/types.js'
+import { getPricingForModel } from '../src/types.js'
 import type { Step } from '../src/types.js'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -174,9 +174,9 @@ describe('session-parser', () => {
     expect(result.session.durationSeconds).toBe(15)
   })
 
-  it('estrae il modello dalla entry assistant', async () => {
+  it('estrae il modello dalla entry assistant (raw model string)', async () => {
     const result = await parseSession(FIXTURE_PATH)
-    expect(result.session.model).toBe('sonnet')
+    expect(result.session.model).toBe('claude-sonnet-4-6')
   })
 })
 
@@ -282,17 +282,22 @@ describe('token-estimator', () => {
     expect(tokens).toBe(33) // 99 / 3
   })
 
-  it('calcola costo corretto per opus', () => {
-    const pricing = DEFAULT_PRICING.opus
-    // opus: $15/M input, $75/M output
-    const cost = estimateCost(1_000_000, 1_000_000, pricing)
+  it('calcola costo corretto per opus (claude-opus-4-20250514)', () => {
+    // claude-opus-4: $15/M input, $75/M output
+    const cost = estimateCost(1_000_000, 1_000_000, 'claude-opus-4-20250514')
     expect(cost).toBe(90) // 15 + 75
   })
 
-  it('calcola costo corretto per sonnet', () => {
-    const pricing = DEFAULT_PRICING.sonnet
-    // sonnet: $3/M input, $15/M output
-    const cost = estimateCost(1_000_000, 1_000_000, pricing)
+  it('calcola costo corretto per sonnet (claude-sonnet-4-6-20260401)', () => {
+    // sonnet 4.6: $3/M input, $15/M output
+    const cost = estimateCost(1_000_000, 1_000_000, 'claude-sonnet-4-6-20260401')
     expect(cost).toBe(18) // 3 + 15
+  })
+
+  it('getPricingForModel restituisce il pricing corretto per model ID esatto', () => {
+    const pricing = getPricingForModel('claude-haiku-4-5-20251001')
+    expect(pricing.tier).toBe('haiku')
+    expect(pricing.inputPer1M).toBe(1)
+    expect(pricing.outputPer1M).toBe(5)
   })
 })

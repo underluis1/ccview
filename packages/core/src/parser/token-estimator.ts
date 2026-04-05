@@ -1,4 +1,4 @@
-import type { PricingModel } from '../types.js'
+import { getPricingForModel } from '../types.js'
 
 /**
  * Heuristic token estimation from text.
@@ -11,14 +11,15 @@ export function estimateTokens(text: string, type: 'natural' | 'code'): number {
 }
 
 /**
- * Estimate cost in USD from token counts and pricing model.
+ * Estimate cost in USD from token counts and model ID string.
  */
 export function estimateCost(
   tokensIn: number,
   tokensOut: number,
-  pricing: PricingModel,
+  modelId: string | null,
 ): number {
+  const pricing = getPricingForModel(modelId)
   const inputCost = (tokensIn / 1_000_000) * pricing.inputPer1M
   const outputCost = (tokensOut / 1_000_000) * pricing.outputPer1M
-  return inputCost + outputCost
+  return Math.round((inputCost + outputCost) * 1_000_000) / 1_000_000
 }

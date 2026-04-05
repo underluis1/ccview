@@ -1,22 +1,14 @@
 import { createReadStream } from 'node:fs'
 import { createInterface } from 'node:readline'
-import type { ParsedLogEntry, ModelName, Step } from '../types.js'
+import type { ParsedLogEntry, Step } from '../types.js'
 import { parseStep, extractModel, extractUsage } from './step-parser.js'
 import { extractFileImpacts } from './file-impact.js'
-
-function resolveModelName(raw: string): ModelName {
-  const lower = raw.toLowerCase()
-  if (lower.includes('opus')) return 'opus'
-  if (lower.includes('sonnet')) return 'sonnet'
-  if (lower.includes('haiku')) return 'haiku'
-  return 'unknown'
-}
 
 export async function parseSession(filePath: string): Promise<ParsedLogEntry> {
   const steps: Omit<Step, 'id' | 'sessionId'>[] = []
   let totalTokensIn = 0
   let totalTokensOut = 0
-  let model: ModelName | null = null
+  let rawModelId: string | null = null
   let projectPath: string | null = null
   let startedAt: Date | null = null
   let endedAt: Date | null = null
@@ -58,8 +50,8 @@ export async function parseSession(filePath: string): Promise<ParsedLogEntry> {
 
     // Extract model
     const rawModel = extractModel(entry)
-    if (rawModel && !model) {
-      model = resolveModelName(rawModel)
+    if (rawModel && !rawModelId) {
+      rawModelId = rawModel  // Salva la stringa esatta dal log
     }
 
     // Extract usage from final assistant entries
@@ -135,7 +127,7 @@ export async function parseSession(filePath: string): Promise<ParsedLogEntry> {
       toolCallCount,
       errorCount,
       retryCount: 0,
-      model,
+      model: rawModelId,
       summary,
       rawLogPath: filePath,
     },

@@ -6,7 +6,6 @@ import { homedir } from 'node:os'
 import type { ScanOptions, ScanResult, ScanError } from '../types.js'
 import { parseSession } from './session-parser.js'
 import { estimateCost } from './token-estimator.js'
-import { DEFAULT_PRICING } from '../types.js'
 
 interface SessionFileInfo {
   filePath: string
@@ -129,14 +128,11 @@ export async function scanClaudeDirectory(
       const parsed = await parseSession(file.filePath)
 
       // Apply cost estimation
-      if (parsed.session.model) {
-        const pricing = DEFAULT_PRICING[parsed.session.model]
-        parsed.session.totalCostUsd = estimateCost(
-          parsed.session.totalTokensIn,
-          parsed.session.totalTokensOut,
-          pricing,
-        )
-      }
+      parsed.session.totalCostUsd = estimateCost(
+        parsed.session.totalTokensIn,
+        parsed.session.totalTokensOut,
+        parsed.session.model,
+      )
 
       newSessions++
     } catch (err) {
