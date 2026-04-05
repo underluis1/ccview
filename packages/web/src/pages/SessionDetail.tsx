@@ -56,7 +56,7 @@ function EditableSessionTitle({ session }: { session: Session }) {
         disabled={saving}
         className="w-full bg-gray-700 border border-blue-500 rounded-lg px-3 py-1
                    text-xl font-bold text-gray-100 focus:outline-none disabled:opacity-60"
-        placeholder="Nome sessione..."
+        placeholder="Session name..."
       />
     )
   }
@@ -64,7 +64,7 @@ function EditableSessionTitle({ session }: { session: Session }) {
   return (
     <button onClick={startEdit} className="group flex items-center gap-2 min-w-0 overflow-hidden text-left w-full">
       <h1 className="text-xl font-bold text-gray-100 truncate">
-        {session.summary ?? 'Sessione senza titolo'}
+        {session.summary ?? 'Untitled session'}
       </h1>
       <svg
         className="w-4 h-4 text-gray-600 group-hover:text-gray-400 shrink-0 transition-colors"
@@ -93,7 +93,7 @@ export default function SessionDetail() {
     else navigate('/sessions')
   }
 
-  if (!id) return <p className="p-8 text-gray-400">Session ID mancante</p>
+  if (!id) return <p className="p-8 text-gray-400">Session ID missing</p>
 
   if (isLoading) {
     return (
@@ -106,10 +106,10 @@ export default function SessionDetail() {
   if (error) {
     return (
       <div className="p-8 space-y-3">
-        <p className="text-red-400">Errore nel caricamento: {(error as Error).message}</p>
+        <p className="text-red-400">Error loading: {(error as Error).message}</p>
         <button onClick={goBack}
           className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg text-sm border border-gray-600 transition-colors">
-          ← Torna indietro
+          ← Back
         </button>
       </div>
     )
@@ -130,14 +130,14 @@ export default function SessionDetail() {
                      transition-colors shadow-sm shrink-0"
         >
           <span className="text-base">←</span>
-          <span>Sessioni</span>
+          <span>Sessions</span>
         </button>
 
         <div className="min-w-0 flex-1">
           <EditableSessionTitle session={session} />
           <p className="text-sm text-gray-400 truncate mt-0.5">
             {session.projectName && <span className="mr-2">{session.projectName} ·</span>}
-            {new Date(session.startedAt).toLocaleString('it-IT')}
+            {new Date(session.startedAt).toLocaleString('en-US')}
             {session.model && <span className="ml-2 text-gray-500">· {getModelLabel(session.model)}</span>}
           </p>
         </div>

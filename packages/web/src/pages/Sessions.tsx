@@ -129,14 +129,14 @@ export default function Sessions() {
   // Periodo leggibile per il banner
   const periodLabel = useMemo(() => {
     if (filters.from && filters.to && filters.from === filters.to) {
-      return new Date(filters.from + 'T12:00:00').toLocaleDateString('it-IT', {
+      return new Date(filters.from + 'T12:00:00').toLocaleDateString('en-US', {
         weekday: 'long', day: 'numeric', month: 'long',
       })
     }
     if (filters.from || filters.to) {
       const parts = []
-      if (filters.from) parts.push(`dal ${filters.from}`)
-      if (filters.to)   parts.push(`al ${filters.to}`)
+      if (filters.from) parts.push(`from ${filters.from}`)
+      if (filters.to)   parts.push(`to ${filters.to}`)
       return parts.join(' ')
     }
     return null
@@ -152,15 +152,15 @@ export default function Sessions() {
         <div className="bg-gray-800/70 rounded-2xl p-4 border border-gray-700/60
                         flex flex-wrap items-center gap-6">
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-widest mb-0.5">Periodo</p>
+            <p className="text-xs text-gray-500 uppercase tracking-widest mb-0.5">Period</p>
             <p className="text-sm font-semibold text-gray-200 capitalize">{periodLabel}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-widest mb-0.5">Sessioni</p>
+            <p className="text-xs text-gray-500 uppercase tracking-widest mb-0.5">Sessions</p>
             <p className="text-sm font-bold text-gray-100">{stats.totalSessions}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-widest mb-0.5">Token totali</p>
+            <p className="text-xs text-gray-500 uppercase tracking-widest mb-0.5">Total tokens</p>
             <p className="text-sm font-bold text-blue-400">
               {formatTokens(stats.totalTokensIn + stats.totalTokensOut)}
             </p>
@@ -174,7 +174,7 @@ export default function Sessions() {
             </p>
           </div>
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-widest mb-0.5">Durata media</p>
+            <p className="text-xs text-gray-500 uppercase tracking-widest mb-0.5">Avg duration</p>
             <p className="text-sm font-medium text-gray-300">{formatDuration(stats.avgSessionDuration)}</p>
           </div>
         </div>

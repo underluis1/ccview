@@ -33,13 +33,13 @@ function formatDuration(s: number): string {
 }
 function fmtDay(iso: string): string {
   const [y, m, d] = iso.slice(0, 10).split('-').map(Number)
-  return new Date(y!, m! - 1, d!).toLocaleDateString('it-IT', { day: '2-digit', month: 'short' })
+  return new Date(y!, m! - 1, d!).toLocaleDateString('en-US', { day: '2-digit', month: 'short' })
 }
 
 const PERIODS = [
-  { label: '7g', days: 7 },
-  { label: '30g', days: 30 },
-  { label: '90g', days: 90 },
+  { label: '7d', days: 7 },
+  { label: '30d', days: 30 },
+  { label: '90d', days: 90 },
 ]
 
 // ─── KPI Card ───────────────────────────────────────────────
@@ -97,7 +97,7 @@ function TokenTrendChart({ from, to, onDayClick }: {
 
   if (isLoading) return <div className="h-48 bg-gray-700/40 rounded-xl animate-pulse" />
   if (!chartData.length) return (
-    <div className="h-48 flex items-center justify-center text-gray-500 text-sm">Nessun dato nel periodo</div>
+    <div className="h-48 flex items-center justify-center text-gray-500 text-sm">No data for this period</div>
   )
 
   const barSize = chartData.length > 45 ? 3 : chartData.length > 20 ? 6 : 10
@@ -106,7 +106,7 @@ function TokenTrendChart({ from, to, onDayClick }: {
   return (
     <div className="relative">
       <p className="absolute -top-6 right-0 text-xs text-gray-600 pointer-events-none">
-        clicca su un giorno per vedere le sessioni
+        click a day to see its sessions
       </p>
       <ResponsiveContainer width="100%" height={200}>
         <BarChart
@@ -160,14 +160,14 @@ function TopProjects({ from, to }: { from: string; to: string }) {
   if (!top3.length) {
     return (
       <div className="bg-gray-800/70 rounded-2xl p-5 border border-gray-700/60 flex items-center justify-center min-h-[160px]">
-        <p className="text-sm text-gray-500">Nessun progetto nel periodo</p>
+        <p className="text-sm text-gray-500">No projects in this period</p>
       </div>
     )
   }
 
   return (
     <div className="bg-gray-800/70 rounded-2xl p-5 border border-gray-700/60 space-y-5">
-      <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Top progetti</h3>
+      <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Top projects</h3>
       {top3.map((p, i) => (
         <div key={p.name}>
           <div className="flex items-center justify-between mb-1.5">
@@ -231,11 +231,11 @@ export default function Dashboard() {
           </button>
         ))}
         <div className="flex items-center gap-2 ml-2">
-          <label className="text-xs text-gray-500">Dal</label>
+          <label className="text-xs text-gray-500">From</label>
           <input type="date" value={from} onChange={(e) => handleFrom(e.target.value)}
             className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-gray-200
                        focus:outline-none focus:border-blue-500 cursor-pointer" />
-          <label className="text-xs text-gray-500">al</label>
+          <label className="text-xs text-gray-500">to</label>
           <input type="date" value={to} onChange={(e) => handleTo(e.target.value)}
             max={todayStr()}
             className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-gray-200
@@ -249,14 +249,14 @@ export default function Dashboard() {
           [...Array(4)].map((_, i) => <div key={i} className="h-28 bg-gray-800 rounded-2xl animate-pulse" />)
         ) : (
           <>
-            <KPI label="Sessioni" value={String(stats?.totalSessions ?? 0)}
-              sub={`durata media ${formatDuration(stats?.avgSessionDuration ?? 0)}`} />
-            <KPI label="Token usati" value={formatTokens(totalTokens)}
+            <KPI label="Sessions" value={String(stats?.totalSessions ?? 0)}
+              sub={`avg duration ${formatDuration(stats?.avgSessionDuration ?? 0)}`} />
+            <KPI label="Tokens used" value={formatTokens(totalTokens)}
               sub={`${formatTokens(stats?.totalTokensIn ?? 0)} in · ${formatTokens(stats?.totalTokensOut ?? 0)} out`}
               color="text-blue-400" />
-            <KPI label="File toccati" value={String(stats?.uniqueFilesTouched ?? 0)}
-              sub="file unici" color="text-violet-400" />
-            <KPI label="Progetto top" value={stats?.topProject ?? '—'}
+            <KPI label="Files touched" value={String(stats?.uniqueFilesTouched ?? 0)}
+              sub="unique files" color="text-violet-400" />
+            <KPI label="Top project" value={stats?.topProject ?? '—'}
               sub={`error rate ${((stats?.errorRate ?? 0) * 100).toFixed(0)}%`}
               color="text-emerald-400" />
           </>
@@ -270,7 +270,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 bg-gray-800/70 rounded-2xl p-5 border border-gray-700/60">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Token per giorno</h3>
+            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Tokens per day</h3>
             <div className="flex items-center gap-3 text-xs text-gray-500">
               <span className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-sm bg-blue-500" />Input

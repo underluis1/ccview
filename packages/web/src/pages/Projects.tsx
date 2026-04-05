@@ -37,7 +37,7 @@ function formatCost(usd: number): string {
 
 function formatDate(iso: string | null): string {
   if (!iso) return '—'
-  return new Date(iso).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' })
+  return new Date(iso).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
 const MODEL_COLORS: Record<string, string> = {
@@ -65,7 +65,7 @@ function ModelBreakdownTooltip({ breakdown, x, y }: { breakdown: ModelBreakdown[
       className="fixed z-[9999] w-64 bg-gray-900 border border-gray-700 rounded-xl p-3 shadow-2xl text-xs pointer-events-none"
       style={{ left: x, top: y - 8, transform: 'translate(-50%, -100%)' }}
     >
-      <p className="text-gray-500 uppercase tracking-widest mb-2 text-[10px]">Breakdown per modello</p>
+      <p className="text-gray-500 uppercase tracking-widest mb-2 text-[10px]">Model breakdown</p>
       {breakdown.map((b) => (
         <div key={b.model} className="flex items-center justify-between py-1 border-b border-gray-800 last:border-0">
           <ModelBadge model={b.model} />
@@ -76,7 +76,7 @@ function ModelBreakdownTooltip({ breakdown, x, y }: { breakdown: ModelBreakdown[
         </div>
       ))}
       <p className="mt-2 text-gray-600 leading-tight">
-        * Prezzi API Anthropic. Non riflettono il costo del piano Claude Code.
+        * Anthropic API pricing. Does not reflect Claude Code subscription cost.
       </p>
     </div>,
     document.body
@@ -167,7 +167,7 @@ export default function Projects() {
   if (error) {
     return (
       <div className="p-6 text-red-400">
-        Errore nel caricamento dei progetti. Il server è in esecuzione?
+        Error loading projects. Is the server running?
       </div>
     )
   }
@@ -178,23 +178,23 @@ export default function Projects() {
       {totals && (
         <div className="grid grid-cols-4 gap-4">
           <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-            <p className="text-xs text-gray-400 uppercase tracking-wide">Progetti totali</p>
+            <p className="text-xs text-gray-400 uppercase tracking-wide">Total projects</p>
             <p className="text-3xl font-bold text-gray-100 mt-1">{data?.length ?? 0}</p>
           </div>
           <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-            <p className="text-xs text-gray-400 uppercase tracking-wide">Token totali</p>
+            <p className="text-xs text-gray-400 uppercase tracking-wide">Total tokens</p>
             <p className="text-3xl font-bold text-blue-400 mt-1">{formatTokens(totals.tokens)}</p>
-            <p className="text-xs text-gray-500 mt-1">{totals.sessions} sessioni totali</p>
+            <p className="text-xs text-gray-500 mt-1">{totals.sessions} total sessions</p>
           </div>
           <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-            <p className="text-xs text-gray-400 uppercase tracking-wide">Sessioni totali</p>
+            <p className="text-xs text-gray-400 uppercase tracking-wide">Total sessions</p>
             <p className="text-3xl font-bold text-violet-400 mt-1">{totals.sessions}</p>
-            <p className="text-xs text-gray-500 mt-1">in tutti i progetti</p>
+            <p className="text-xs text-gray-500 mt-1">across all projects</p>
           </div>
           <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-            <p className="text-xs text-gray-400 uppercase tracking-wide">Costo stimato (API)</p>
+            <p className="text-xs text-gray-400 uppercase tracking-wide">Estimated cost (API)</p>
             <p className="text-3xl font-bold text-amber-400 mt-1">{formatCost(totals.cost)}</p>
-            <p className="text-xs text-gray-500 mt-1">prezzi API, non piano CC</p>
+            <p className="text-xs text-gray-500 mt-1">API pricing, not CC plan</p>
           </div>
         </div>
       )}
@@ -203,15 +203,15 @@ export default function Projects() {
       <div className="flex items-start gap-2 bg-amber-900/20 border border-amber-700/40 rounded-xl px-4 py-3">
         <span className="text-amber-500 mt-0.5 shrink-0">⚠</span>
         <p className="text-xs text-amber-300/80 leading-relaxed">
-          I costi mostrati sono <strong>stime basate sui prezzi API Anthropic</strong> (Opus 4.6 $5/$25, Sonnet $3/$15, Haiku 4.5 $1/$5 per 1M token).
-          Non riflettono il costo effettivo del piano Claude Code in abbonamento.
+          Costs shown are <strong>estimates based on Anthropic API pricing</strong> (Opus 4.6 $5/$25, Sonnet $3/$15, Haiku 4.5 $1/$5 per 1M tokens).
+          They do not reflect the actual cost of a Claude Code subscription.
         </p>
       </div>
 
       {/* Search */}
       <input
         type="text"
-        placeholder="Cerca progetto..."
+        placeholder="Search project..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-blue-500"
@@ -223,22 +223,22 @@ export default function Projects() {
           <thead>
             <tr className="border-b border-gray-700 text-xs text-gray-400 uppercase tracking-wide">
               <th className="text-left px-4 py-3 cursor-pointer hover:text-gray-200" onClick={() => toggleSort('name')}>
-                Progetto <SortIcon k="name" />
+                Project <SortIcon k="name" />
               </th>
               <th className="text-right px-4 py-3 cursor-pointer hover:text-gray-200" onClick={() => toggleSort('totalSessions')}>
-                Sessioni <SortIcon k="totalSessions" />
+                Sessions <SortIcon k="totalSessions" />
               </th>
               <th className="text-right px-4 py-3 cursor-pointer hover:text-gray-200" onClick={() => toggleSort('totalTokens')}>
-                Token <SortIcon k="totalTokens" />
+                Tokens <SortIcon k="totalTokens" />
               </th>
               <th className="text-right px-4 py-3 cursor-pointer hover:text-gray-200" onClick={() => toggleSort('tokenPct')}>
-                % totale <SortIcon k="tokenPct" />
+                % total <SortIcon k="tokenPct" />
               </th>
               <th className="text-right px-4 py-3 cursor-pointer hover:text-gray-200" onClick={() => toggleSort('totalCostUsd')}>
-                Costo stimato API <SortIcon k="totalCostUsd" />
+                Est. API cost <SortIcon k="totalCostUsd" />
               </th>
               <th className="text-right px-4 py-3 cursor-pointer hover:text-gray-200" onClick={() => toggleSort('lastSessionAt')}>
-                Ultima sessione <SortIcon k="lastSessionAt" />
+                Last session <SortIcon k="lastSessionAt" />
               </th>
             </tr>
           </thead>
@@ -313,13 +313,13 @@ export default function Projects() {
           </tbody>
         </table>
         {projects.length === 0 && (
-          <div className="text-center py-12 text-gray-500">Nessun progetto trovato</div>
+          <div className="text-center py-12 text-gray-500">No projects found</div>
         )}
       </div>
 
       <p className="text-xs text-gray-600">
-        Passa il cursore sul costo stimato per vedere il dettaglio per modello.
-        I prezzi sono riferiti alle tariffe API Anthropic pubbliche e non al piano in abbonamento.
+        Hover the estimated cost to see the model breakdown.
+        Prices are based on public Anthropic API rates, not the Claude Code subscription plan.
       </p>
     </div>
   )

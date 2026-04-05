@@ -24,7 +24,7 @@ function applyTheme(theme: Theme) {
 
 const pageTitles: Record<string, string> = {
   '/': 'Dashboard',
-  '/sessions': 'Sessioni',
+  '/sessions': 'Sessions',
   '/projects': 'Projects',
 }
 

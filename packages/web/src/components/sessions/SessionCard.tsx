@@ -56,14 +56,14 @@ function ResumeButton({ session }: { session: Session }) {
           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
-          Copiato
+          Copied
         </>
       ) : (
         <>
           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v7a2 2 0 002 2z" />
           </svg>
-          Riprendi
+          Resume
         </>
       )}
     </button>
@@ -79,7 +79,7 @@ function EditableTitle({ session }: { session: Session }) {
 
   const displayTitle = session.summary
     ? session.summary.length > 80 ? session.summary.slice(0, 80) + '...' : session.summary
-    : 'Sessione senza titolo'
+    : 'Untitled session'
 
   const startEdit = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -125,7 +125,7 @@ function EditableTitle({ session }: { session: Session }) {
         disabled={saving}
         className="flex-1 min-w-0 bg-gray-700 border border-blue-500 rounded-md px-2 py-0.5
                    text-sm font-semibold text-gray-100 focus:outline-none disabled:opacity-60"
-        placeholder="Nome sessione..."
+        placeholder="Session name..."
       />
     )
   }
@@ -133,7 +133,7 @@ function EditableTitle({ session }: { session: Session }) {
   return (
     <button
       onClick={startEdit}
-      title="Clicca per rinominare"
+      title="Click to rename"
       className="group flex items-center gap-1.5 min-w-0 text-left"
     >
       <span className="text-sm font-semibold text-gray-100 truncate">{displayTitle}</span>

@@ -22,25 +22,25 @@ export default function KPICards({ stats }: KPICardsProps) {
 
   const cards = [
     {
-      label: 'Sessioni',
+      label: 'Sessions',
       value: String(stats.totalSessions),
-      detail: `durata media ${formatDuration(stats.avgSessionDuration)}`,
+      detail: `avg duration ${formatDuration(stats.avgSessionDuration)}`,
       color: 'text-gray-100',
     },
     {
-      label: 'Token utilizzati',
+      label: 'Tokens used',
       value: formatTokens(totalTokens),
       detail: `${formatTokens(stats.totalTokensIn)} in · ${formatTokens(stats.totalTokensOut)} out`,
       color: 'text-blue-400',
     },
     {
-      label: 'File toccati',
+      label: 'Files touched',
       value: String(stats.uniqueFilesTouched),
-      detail: `in ${stats.totalSessions} session${stats.totalSessions !== 1 ? 'i' : 'e'}`,
+      detail: `across ${stats.totalSessions} session${stats.totalSessions !== 1 ? 's' : ''}`,
       color: 'text-violet-400',
     },
     {
-      label: 'Progetto top',
+      label: 'Top project',
       value: stats.topProject || '—',
       detail: `error rate ${errorPct}%`,
       color: 'text-emerald-400',

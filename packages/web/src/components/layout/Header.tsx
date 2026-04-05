@@ -21,7 +21,7 @@ export default function Header({ title, theme, onToggleTheme }: HeaderProps) {
           disabled={isPending}
           className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           aria-label="Sync sessions"
-          title="Sincronizza sessioni"
+          title="Sync sessions"
         >
           <svg
             className={`h-4 w-4 ${isPending ? 'animate-spin' : ''}`}
@@ -34,7 +34,7 @@ export default function Header({ title, theme, onToggleTheme }: HeaderProps) {
           >
             <path d="M21 12a9 9 0 1 1-6.219-8.56" />
           </svg>
-          {isPending ? 'Sync…' : isSuccess ? 'Aggiornato' : isError ? 'Errore' : 'Sync'}
+          {isPending ? 'Syncing…' : isSuccess ? 'Synced' : isError ? 'Error' : 'Sync'}
         </button>
         <button
           onClick={onToggleTheme}

@@ -23,8 +23,8 @@ function localISO(d: Date): string {
   )
 }
 
-const MONTHS = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic']
-const DAYS_LABELS = ['Lun', '', 'Mer', '', 'Ven', '', 'Dom']
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const DAYS_LABELS = ['Mon', '', 'Wed', '', 'Fri', '', 'Sun']
 
 function getColor(sessions: number, max: number): string {
   if (sessions === 0) return '#1f2937'
@@ -102,14 +102,14 @@ const CELL = 13, GAP = 3, STEP = CELL + GAP
     <div className="bg-gray-800/70 rounded-2xl p-5 border border-gray-700/60">
       <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
         <div>
-          <h3 className="text-sm font-semibold text-gray-200">Attività — ultimi 12 mesi</h3>
-          <p className="text-xs text-gray-500 mt-0.5">Ogni cella = 1 giorno · intensità = sessioni</p>
+          <h3 className="text-sm font-semibold text-gray-200">Activity — last 12 months</h3>
+          <p className="text-xs text-gray-500 mt-0.5">Each cell = 1 day · intensity = sessions</p>
         </div>
         <div className="flex gap-5">
           {[
-            { value: totalSessions, label: 'sessioni', color: 'text-blue-400' },
-            { value: formatTokens(totalTokens), label: 'token', color: 'text-violet-400' },
-            { value: activeDays, label: 'giorni attivi', color: 'text-gray-200' },
+            { value: totalSessions, label: 'sessions', color: 'text-blue-400' },
+            { value: formatTokens(totalTokens), label: 'tokens', color: 'text-violet-400' },
+            { value: activeDays, label: 'active days', color: 'text-gray-200' },
           ].map(({ value, label, color }) => (
             <div key={label} className="text-right">
               <p className={`text-lg font-bold ${color}`}>{value}</p>
@@ -165,12 +165,12 @@ const CELL = 13, GAP = 3, STEP = CELL + GAP
             )}
           </svg>
           <div className="flex items-center gap-1.5 mt-1 justify-end">
-            <span className="text-xs text-gray-600">Meno</span>
+            <span className="text-xs text-gray-600">Less</span>
             {[0, 0.1, 0.3, 0.6, 0.9].map((v) => (
               <div key={v} className="w-3 h-3 rounded-sm"
                 style={{ backgroundColor: getColor(v * maxSessions, maxSessions) }} />
             ))}
-            <span className="text-xs text-gray-600">Di più</span>
+            <span className="text-xs text-gray-600">More</span>
           </div>
         </div>
       )}
@@ -182,11 +182,11 @@ const CELL = 13, GAP = 3, STEP = CELL + GAP
           <p className="font-semibold text-gray-100 mb-1">{tooltip.day}</p>
           {tooltip.sessions > 0 ? (
             <>
-              <p className="text-blue-400">{tooltip.sessions} session{tooltip.sessions !== 1 ? 'i' : 'e'}</p>
-              <p className="text-violet-400">{formatTokens(tooltip.tokens)} token</p>
+              <p className="text-blue-400">{tooltip.sessions} session{tooltip.sessions !== 1 ? 's' : ''}</p>
+              <p className="text-violet-400">{formatTokens(tooltip.tokens)} tokens</p>
             </>
           ) : (
-            <p className="text-gray-500">Nessuna attività</p>
+            <p className="text-gray-500">No activity</p>
           )}
         </div>
       )}

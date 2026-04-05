@@ -3,7 +3,7 @@ import { clsx } from 'clsx'
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: '⚡' },
-  { to: '/sessions', label: 'Sessioni', icon: '📋' },
+  { to: '/sessions', label: 'Sessions', icon: '📋' },
   { to: '/projects', label: 'Projects', icon: '🗂️' },
 ]
 
