@@ -12,14 +12,20 @@ export function estimateTokens(text: string, type: 'natural' | 'code'): number {
 
 /**
  * Estimate cost in USD from token counts and model ID string.
+ * cacheReadTokens are already included in tokensIn but cost 0.1x (cacheHitPer1M).
  */
 export function estimateCost(
   tokensIn: number,
   tokensOut: number,
   modelId: string | null,
+  cacheReadTokens = 0,
 ): number {
   const pricing = getPricingForModel(modelId)
-  const inputCost = (tokensIn / 1_000_000) * pricing.inputPer1M
+  // cache_read_tokens are already included in tokensIn but cost 0.1x
+  const regularInputTokens = tokensIn - cacheReadTokens
+  const inputCost =
+    (regularInputTokens / 1_000_000) * pricing.inputPer1M +
+    (cacheReadTokens / 1_000_000) * pricing.cacheHitPer1M
   const outputCost = (tokensOut / 1_000_000) * pricing.outputPer1M
   return Math.round((inputCost + outputCost) * 1_000_000) / 1_000_000
 }

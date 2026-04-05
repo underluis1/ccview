@@ -1,6 +1,6 @@
 import type Database from 'better-sqlite3'
 import { randomUUID } from 'node:crypto'
-import type { ParsedLogEntry, Session, Step, FileImpact, Project } from '../types.js'
+import type { ParsedLogEntry, Session, Step, FileImpact } from '../types.js'
 import {
   insertSession,
   insertStep,
@@ -35,7 +35,7 @@ export function indexSession(
     ...entry.session,
   }
 
-  const steps: Step[] = entry.steps.map((s, i) => ({
+  const steps: Step[] = entry.steps.map((s) => ({
     id: randomUUID(),
     sessionId,
     ...s,
@@ -66,34 +66,16 @@ export function indexSession(
 
     updateSessionHash(db, logPath, hash)
 
-    // Upsert project stats
+    // Upsert project (only identity fields — aggregates are computed at read time via JOIN)
     if (session.projectPath) {
       const projectName = session.projectName ?? session.projectPath.split('/').pop() ?? 'unknown'
 
-      const stats = db.prepare(`
-        SELECT
-          COUNT(*) as total_sessions,
-          COALESCE(SUM(total_tokens_in + total_tokens_out), 0) as total_tokens,
-          COALESCE(SUM(total_cost_usd), 0) as total_cost,
-          MIN(started_at) as first_session_at,
-          MAX(started_at) as last_session_at
-        FROM sessions
-        WHERE project_path = ?
-      `).get(session.projectPath) as Record<string, unknown>
-
-      const project: Project = {
+      upsertProject(db, {
         path: session.projectPath,
         name: projectName,
-        totalSessions: (stats['total_sessions'] as number) ?? 0,
-        totalTokens: (stats['total_tokens'] as number) ?? 0,
-        totalCostUsd: (stats['total_cost'] as number) ?? 0,
-        firstSessionAt: stats['first_session_at'] ? new Date(stats['first_session_at'] as string) : null,
-        lastSessionAt: stats['last_session_at'] ? new Date(stats['last_session_at'] as string) : null,
         claudeMdPath: null,
         updatedAt: new Date(),
-      }
-
-      upsertProject(db, project)
+      })
     }
   })
 

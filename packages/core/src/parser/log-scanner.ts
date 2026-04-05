@@ -128,10 +128,12 @@ export async function scanClaudeDirectory(
       const parsed = await parseSession(file.filePath)
 
       // Apply cost estimation
+      const totalCacheReadTokens = parsed.steps.reduce((sum, s) => sum + (s.cacheReadTokens ?? 0), 0)
       parsed.session.totalCostUsd = estimateCost(
         parsed.session.totalTokensIn,
         parsed.session.totalTokensOut,
         parsed.session.model,
+        totalCacheReadTokens,
       )
 
       newSessions++

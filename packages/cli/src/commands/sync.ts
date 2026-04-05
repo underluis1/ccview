@@ -46,10 +46,12 @@ async function syncSessions(opts: { rebuild: boolean }): Promise<void> {
 
       const parsed = await parseSession(file.filePath)
 
+      const totalCacheReadTokens = parsed.steps.reduce((sum, s) => sum + (s.cacheReadTokens ?? 0), 0)
       parsed.session.totalCostUsd = estimateCost(
         parsed.session.totalTokensIn,
         parsed.session.totalTokensOut,
         parsed.session.model,
+        totalCacheReadTokens,
       )
 
       indexSession(db, parsed, file.filePath, file.hash)
@@ -97,10 +99,12 @@ async function watchForChanges(): Promise<void> {
 
       const parsed = await parseSession(filePath)
 
+      const totalCacheReadTokens = parsed.steps.reduce((sum, s) => sum + (s.cacheReadTokens ?? 0), 0)
       parsed.session.totalCostUsd = estimateCost(
         parsed.session.totalTokensIn,
         parsed.session.totalTokensOut,
         parsed.session.model,
+        totalCacheReadTokens,
       )
 
       indexSession(db, parsed, filePath, hash)

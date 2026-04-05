@@ -315,32 +315,20 @@ export function listFileImpactsBySession(db: Database.Database, sessionId: strin
 
 // ── Projects ───────────────────────────────────────────────────────
 
-export function upsertProject(db: Database.Database, project: Project): void {
+export function upsertProject(
+  db: Database.Database,
+  project: Pick<Project, 'path' | 'name' | 'claudeMdPath' | 'updatedAt'>,
+): void {
   db.prepare(`
-    INSERT INTO projects (
-      path, name, total_sessions, total_tokens, total_cost_usd,
-      first_session_at, last_session_at, claude_md_path, updated_at
-    ) VALUES (
-      @path, @name, @totalSessions, @totalTokens, @totalCostUsd,
-      @firstSessionAt, @lastSessionAt, @claudeMdPath, @updatedAt
-    )
+    INSERT INTO projects (path, name, claude_md_path, updated_at)
+    VALUES (@path, @name, @claudeMdPath, @updatedAt)
     ON CONFLICT(path) DO UPDATE SET
       name = excluded.name,
-      total_sessions = excluded.total_sessions,
-      total_tokens = excluded.total_tokens,
-      total_cost_usd = excluded.total_cost_usd,
-      first_session_at = excluded.first_session_at,
-      last_session_at = excluded.last_session_at,
       claude_md_path = excluded.claude_md_path,
       updated_at = excluded.updated_at
   `).run({
     path: project.path,
     name: project.name,
-    totalSessions: project.totalSessions,
-    totalTokens: project.totalTokens,
-    totalCostUsd: project.totalCostUsd,
-    firstSessionAt: project.firstSessionAt ? toISOString(project.firstSessionAt) : null,
-    lastSessionAt: project.lastSessionAt ? toISOString(project.lastSessionAt) : null,
     claudeMdPath: project.claudeMdPath,
     updatedAt: toISOString(project.updatedAt),
   })
@@ -352,17 +340,17 @@ export function listProjects(db: Database.Database): Project[] {
       SELECT
         p.path,
         p.name,
-        p.first_session_at,
-        p.last_session_at,
         p.claude_md_path,
         p.updated_at,
         COUNT(s.id) as total_sessions,
         COALESCE(SUM(s.total_tokens_in + s.total_tokens_out), 0) as total_tokens,
-        COALESCE(SUM(s.total_cost_usd), 0) as total_cost_usd
+        COALESCE(SUM(s.total_cost_usd), 0) as total_cost_usd,
+        MIN(s.started_at) as first_session_at,
+        MAX(s.started_at) as last_session_at
       FROM projects p
       LEFT JOIN sessions s ON s.project_path = p.path
       GROUP BY p.path
-      ORDER BY p.last_session_at DESC
+      ORDER BY MAX(s.started_at) DESC
     `)
     .all() as Record<string, unknown>[]
   return rows.map(mapProjectRow)
