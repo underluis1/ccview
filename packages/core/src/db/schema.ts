@@ -147,6 +147,7 @@ const RECALCULATE_COSTS_VERSION = 2
 const ADD_CACHE_TOKENS_VERSION = 3
 const REPARSE_ALL_VERSION = 4
 const RECALCULATE_COSTS_FROM_STEPS_VERSION = 5
+const RECALCULATE_COSTS_AFTER_REPARSE_VERSION = 6
 
 export function initSchema(db: Database.Database): void {
   db.exec(SCHEMA_SQL)
@@ -313,5 +314,64 @@ function runMigrations(db: Database.Database): void {
     })
     txn5()
     console.log('[migration] Recalculated all session costs with correct cache pricing')
+  }
+
+  // Migration 6: recalculate total_cost_usd again now that steps have correct cache tokens
+  // Migration 5 ran before sync re-parsed sessions, so cache_creation_tokens was 0 for many steps
+  const hasMigration6 = db
+    .prepare<[number], { version: number }>(`SELECT version FROM _migrations WHERE version = ?`)
+    .get(RECALCULATE_COSTS_AFTER_REPARSE_VERSION)
+
+  if (!hasMigration6) {
+    const sessions6 = db
+      .prepare<[], { id: string; model: string | null }>(
+        `SELECT id, model FROM sessions`
+      )
+      .all()
+
+    const getStepTotals6 = db.prepare<[string], {
+      tokens_in: number; tokens_out: number;
+      cache_creation: number; cache_read: number
+    }>(`
+      SELECT
+        COALESCE(SUM(tokens_in), 0) as tokens_in,
+        COALESCE(SUM(tokens_out), 0) as tokens_out,
+        COALESCE(SUM(cache_creation_tokens), 0) as cache_creation,
+        COALESCE(SUM(cache_read_tokens), 0) as cache_read
+      FROM steps WHERE session_id = ?
+    `)
+
+    const updateCost6 = db.prepare<[number, string]>(
+      `UPDATE sessions SET total_cost_usd = ? WHERE id = ?`
+    )
+
+    const txn6 = db.transaction(() => {
+      for (const s of sessions6) {
+        const tok = getStepTotals6.get(s.id)
+        if (!tok) continue
+        const pricing = getPricingForModel(s.model)
+        const regularIn = tok.tokens_in - tok.cache_creation - tok.cache_read
+        const cost =
+          (regularIn / 1_000_000) * pricing.inputPer1M +
+          (tok.cache_creation / 1_000_000) * pricing.cacheWrite5mPer1M +
+          (tok.cache_read / 1_000_000) * pricing.cacheHitPer1M +
+          (tok.tokens_out / 1_000_000) * pricing.outputPer1M
+        updateCost6.run(Math.round(cost * 1_000_000) / 1_000_000, s.id)
+      }
+
+      db.prepare(`
+        UPDATE projects SET total_cost_usd = (
+          SELECT COALESCE(SUM(total_cost_usd), 0)
+          FROM sessions WHERE project_path = projects.path
+        )
+      `).run()
+
+      db.prepare(`INSERT INTO _migrations (version, name) VALUES (?, ?)`).run(
+        RECALCULATE_COSTS_AFTER_REPARSE_VERSION,
+        'recalculate_costs_after_full_reparse',
+      )
+    })
+    txn6()
+    console.log('[migration] Recalculated all session costs after full reparse — cache tokens now correct')
   }
 }

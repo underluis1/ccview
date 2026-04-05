@@ -1,7 +1,7 @@
 import type { CostBreakdown } from '../../api/hooks'
 
-// Sonnet 4.6 pricing (most common model) for estimation
-const PRICING = {
+// Reference rates (Sonnet 4.6) — used only for proportion and "without cache" estimate
+const REF = {
   inputPer1M: 3.0,
   cacheWritePer1M: 3.75,
   cacheReadPer1M: 0.30,
@@ -30,22 +30,34 @@ export default function CostBreakdownCard({ data, isLoading }: Props) {
 
   if (!data) return null
 
-  const costInput = (data.regularInputTokens / 1_000_000) * PRICING.inputPer1M
-  const costWrite = (data.cacheWriteTokens / 1_000_000) * PRICING.cacheWritePer1M
-  const costRead = (data.cacheReadTokens / 1_000_000) * PRICING.cacheReadPer1M
-  const costOutput = (data.outputTokens / 1_000_000) * PRICING.outputPer1M
-  const totalCost = costInput + costWrite + costRead + costOutput
+  // Actual total from DB (per-model pricing, accurate)
+  const totalCost = data.totalCostUsd
+
+  // Proportional estimates using reference rates — only for visual distribution
+  const estInput  = (data.regularInputTokens / 1_000_000) * REF.inputPer1M
+  const estWrite  = (data.cacheWriteTokens   / 1_000_000) * REF.cacheWritePer1M
+  const estRead   = (data.cacheReadTokens    / 1_000_000) * REF.cacheReadPer1M
+  const estOutput = (data.outputTokens       / 1_000_000) * REF.outputPer1M
+  const estTotal  = estInput + estWrite + estRead + estOutput
+
+  // Scale row costs so they sum to the real totalCost
+  const scale = estTotal > 0 ? totalCost / estTotal : 1
+  const costInput  = estInput  * scale
+  const costWrite  = estWrite  * scale
+  const costRead   = estRead   * scale
+  const costOutput = estOutput * scale
 
   const totalTokensIn = data.regularInputTokens + data.cacheWriteTokens + data.cacheReadTokens
-  const noCacheCost = (totalTokensIn / 1_000_000) * PRICING.inputPer1M + (data.outputTokens / 1_000_000) * PRICING.outputPer1M
+  // "Without cache" uses reference Sonnet rates (rough estimate)
+  const noCacheCost = (totalTokensIn / 1_000_000) * REF.inputPer1M + (data.outputTokens / 1_000_000) * REF.outputPer1M
   const savings = noCacheCost - totalCost
   const savingsPct = noCacheCost > 0 ? ((savings / noCacheCost) * 100) : 0
 
   const rows = [
-    { label: 'Input (new)', tokens: data.regularInputTokens, rate: PRICING.inputPer1M, cost: costInput, color: 'bg-blue-500' },
-    { label: 'Cache write', tokens: data.cacheWriteTokens, rate: PRICING.cacheWritePer1M, cost: costWrite, color: 'bg-amber-500' },
-    { label: 'Cache read', tokens: data.cacheReadTokens, rate: PRICING.cacheReadPer1M, cost: costRead, color: 'bg-emerald-500' },
-    { label: 'Output', tokens: data.outputTokens, rate: PRICING.outputPer1M, cost: costOutput, color: 'bg-violet-500' },
+    { label: 'Input (new)', tokens: data.regularInputTokens, cost: costInput, color: 'bg-blue-500' },
+    { label: 'Cache write', tokens: data.cacheWriteTokens, cost: costWrite, color: 'bg-amber-500' },
+    { label: 'Cache read', tokens: data.cacheReadTokens, cost: costRead, color: 'bg-emerald-500' },
+    { label: 'Output', tokens: data.outputTokens, cost: costOutput, color: 'bg-violet-500' },
   ]
 
   const maxCost = Math.max(...rows.map(r => r.cost), 1)
@@ -86,7 +98,6 @@ export default function CostBreakdownCard({ data, isLoading }: Props) {
           <tr className="text-gray-500 border-b border-gray-700">
             <th className="text-left py-1.5 font-medium">Type</th>
             <th className="text-right py-1.5 font-medium">Tokens</th>
-            <th className="text-right py-1.5 font-medium">$/M</th>
             <th className="text-right py-1.5 font-medium">Cost</th>
             <th className="text-right py-1.5 font-medium w-24"></th>
           </tr>
@@ -99,7 +110,6 @@ export default function CostBreakdownCard({ data, isLoading }: Props) {
                 {r.label}
               </td>
               <td className="text-right py-2 tabular-nums">{fmt(r.tokens)}</td>
-              <td className="text-right py-2 tabular-nums text-gray-500">{usd(r.rate)}</td>
               <td className="text-right py-2 tabular-nums font-medium">{usd(r.cost)}</td>
               <td className="text-right py-2">
                 <div className="h-1.5 bg-gray-700 rounded-full overflow-hidden ml-auto w-20">
@@ -113,13 +123,12 @@ export default function CostBreakdownCard({ data, isLoading }: Props) {
           <tr className="text-gray-100 font-semibold">
             <td className="pt-2">Total</td>
             <td className="text-right pt-2 tabular-nums">{fmt(totalTokensIn + data.outputTokens)}</td>
-            <td></td>
             <td className="text-right pt-2 tabular-nums">{usd(totalCost)}</td>
             <td></td>
           </tr>
           <tr className="text-gray-500 text-[10px]">
-            <td colSpan={5} className="pt-1">
-              Without prompt cache: {usd(noCacheCost)}
+            <td colSpan={4} className="pt-1">
+              Without prompt cache: {usd(noCacheCost)} · Rates vary by model (Opus/Sonnet/Haiku)
             </td>
           </tr>
         </tfoot>

@@ -203,6 +203,7 @@ export interface CostBreakdown {
   cacheReadTokens: number
   outputTokens: number
   totalSessions: number
+  totalCostUsd: number
 }
 
 export function useCostBreakdown(filters?: AnalyticsFilters) {

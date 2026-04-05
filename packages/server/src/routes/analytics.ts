@@ -68,7 +68,8 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
     if (project) { conditions.push(`s.project_name = @project`); params['project'] = project }
     const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''
 
-    const row = fastify.db.prepare(`
+    // Token breakdown from steps (one row per step — no cost here)
+    const tokRow = fastify.db.prepare(`
       SELECT
         COALESCE(SUM(st.tokens_in), 0) as totalTokensIn,
         COALESCE(SUM(st.tokens_out), 0) as totalTokensOut,
@@ -86,14 +87,32 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
       totalSessions: number
     }
 
-    const regularInput = row.totalTokensIn - row.totalCacheWrite - row.totalCacheRead
+    // Cost from sessions table (avoids JOIN multiplication)
+    const sessionWhere = conditions.length
+      ? `WHERE ${conditions.join(' AND ').replace(/s\./g, '')}`
+      : ''
+    const sessionConditions: string[] = []
+    const sessionParams: Record<string, string> = {}
+    if (from) { sessionConditions.push(`started_at >= @from`); sessionParams['from'] = from }
+    if (to)   { sessionConditions.push(`started_at <= @to`);   sessionParams['to']   = to + 'T23:59:59' }
+    if (project) { sessionConditions.push(`project_name = @project`); sessionParams['project'] = project }
+    const sessWhere = sessionConditions.length ? `WHERE ${sessionConditions.join(' AND ')}` : ''
+
+    const costRow = fastify.db.prepare(`
+      SELECT COALESCE(SUM(total_cost_usd), 0) as totalCostUsd
+      FROM sessions
+      ${sessWhere}
+    `).get(sessionParams) as { totalCostUsd: number }
+
+    const regularInput = tokRow.totalTokensIn - tokRow.totalCacheWrite - tokRow.totalCacheRead
     return {
       data: {
         regularInputTokens: regularInput,
-        cacheWriteTokens: row.totalCacheWrite,
-        cacheReadTokens: row.totalCacheRead,
-        outputTokens: row.totalTokensOut,
-        totalSessions: row.totalSessions,
+        cacheWriteTokens: tokRow.totalCacheWrite,
+        cacheReadTokens: tokRow.totalCacheRead,
+        outputTokens: tokRow.totalTokensOut,
+        totalSessions: tokRow.totalSessions,
+        totalCostUsd: costRow.totalCostUsd,
       },
     }
   })
