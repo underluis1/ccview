@@ -1,6 +1,6 @@
 {
   "name": "@ccview/core",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Core parser and database for ccview — Claude Code session analytics",
   "license": "MIT",
   "type": "module",

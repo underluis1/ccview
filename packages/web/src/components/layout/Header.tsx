@@ -8,7 +8,7 @@ interface HeaderProps {
 
 export default function Header({ title, theme, onToggleTheme }: HeaderProps) {
   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
-  const { mutate: sync, isPending, isSuccess, isError } = useSync(true)
+  const { mutate: sync, isPending, isSuccess, isError } = useSync()
 
   return (
     <header className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-6 py-4">
@@ -34,7 +34,7 @@ export default function Header({ title, theme, onToggleTheme }: HeaderProps) {
           >
             <path d="M21 12a9 9 0 1 1-6.219-8.56" />
           </svg>
-          {isPending ? 'Sync…' : isSuccess ? 'Aggiornato' : isError ? 'Errore' : 'Force sync'}
+          {isPending ? 'Sync…' : isSuccess ? 'Aggiornato' : isError ? 'Errore' : 'Sync'}
         </button>
         <button
           onClick={onToggleTheme}

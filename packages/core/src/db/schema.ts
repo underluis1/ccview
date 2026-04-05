@@ -145,6 +145,7 @@ ORDER BY day DESC;
 const INITIAL_VERSION = 1
 const RECALCULATE_COSTS_VERSION = 2
 const ADD_CACHE_TOKENS_VERSION = 3
+const REPARSE_ALL_VERSION = 4
 
 export function initSchema(db: Database.Database): void {
   db.exec(SCHEMA_SQL)
@@ -233,5 +234,23 @@ function runMigrations(db: Database.Database): void {
       )
     })
     txn3()
+  }
+
+  // Migration 4: invalidate all hashes to trigger re-parse with updated parser
+  // (thinking blocks, session_start, corrected cache pricing)
+  const hasMigration4 = db
+    .prepare<[number], { version: number }>(`SELECT version FROM _migrations WHERE version = ?`)
+    .get(REPARSE_ALL_VERSION)
+
+  if (!hasMigration4) {
+    const txn4 = db.transaction(() => {
+      db.prepare(`UPDATE sessions SET log_hash = 'invalidated'`).run()
+      db.prepare(`INSERT INTO _migrations (version, name) VALUES (?, ?)`).run(
+        REPARSE_ALL_VERSION,
+        'invalidate_hashes_for_reparse',
+      )
+    })
+    txn4()
+    console.log('[migration] Invalidated all session hashes — next sync will re-parse everything')
   }
 }
