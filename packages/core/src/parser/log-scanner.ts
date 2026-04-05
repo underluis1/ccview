@@ -129,11 +129,13 @@ export async function scanClaudeDirectory(
 
       // Apply cost estimation
       const totalCacheReadTokens = parsed.steps.reduce((sum, s) => sum + (s.cacheReadTokens ?? 0), 0)
+      const totalCacheWriteTokens = parsed.steps.reduce((sum, s) => sum + (s.cacheCreationTokens ?? 0), 0)
       parsed.session.totalCostUsd = estimateCost(
         parsed.session.totalTokensIn,
         parsed.session.totalTokensOut,
         parsed.session.model,
         totalCacheReadTokens,
+        totalCacheWriteTokens,
       )
 
       newSessions++

@@ -81,11 +81,13 @@ const configRoutes: FastifyPluginAsync = async (fastify) => {
           console.log(`[sync] indexing ${path.basename(file.filePath)} — steps=${parsed.steps.length}`)
 
           const totalCacheReadTokens = parsed.steps.reduce((sum, s) => sum + (s.cacheReadTokens ?? 0), 0)
+          const totalCacheWriteTokens = parsed.steps.reduce((sum, s) => sum + (s.cacheCreationTokens ?? 0), 0)
           parsed.session.totalCostUsd = estimateCost(
             parsed.session.totalTokensIn,
             parsed.session.totalTokensOut,
             parsed.session.model,
             totalCacheReadTokens,
+            totalCacheWriteTokens,
           )
 
           indexSession(fastify.db, parsed, file.filePath, hash, force)
