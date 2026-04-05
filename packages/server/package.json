@@ -1,6 +1,6 @@
 {
   "name": "@ccview/server",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "description": "Fastify API server for ccview — Claude Code session analytics",
   "license": "MIT",
   "type": "module",
