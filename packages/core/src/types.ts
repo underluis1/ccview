@@ -3,7 +3,7 @@
 // Core data model — allineato con lo schema SQLite in db/schema.ts
 // ============================================================
 
-export type StepType = 'user_prompt' | 'assistant_response' | 'tool_call' | 'tool_result' | 'error'
+export type StepType = 'user_prompt' | 'assistant_response' | 'tool_call' | 'tool_result' | 'error' | 'thinking' | 'session_start'
 export type ToolSubtype = 'file_edit' | 'bash' | 'read_file' | 'search' | 'glob' | 'other'
 export type FileAction = 'create' | 'edit' | 'delete' | 'read' | 'rename'
 

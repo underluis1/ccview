@@ -66,7 +66,11 @@ export function parseStep(entry: unknown, index: number): PartialStep | PartialS
     return parseAssistantEntry(e, index, createdAt)
   }
 
-  // Ignore system, progress, permission-mode, file-history-snapshot, attachment, last-prompt
+  if (type === 'progress') {
+    return parseProgressEntry(e, index, createdAt)
+  }
+
+  // Ignore system, permission-mode, file-history-snapshot, attachment, last-prompt
   return null
 }
 
@@ -171,11 +175,32 @@ function parseAssistantEntry(
     : 0
   const tokensOut = isFinal ? (usage.output_tokens ?? 0) : 0
 
+  const thinkingSteps: PartialStep[] = []
   const steps: PartialStep[] = []
   const textParts: string[] = []
 
   for (const block of contentBlocks) {
-    if (block.type === 'text' && typeof block.text === 'string') {
+    if (block.type === 'thinking' && typeof block.thinking === 'string' && block.thinking.length > 0) {
+      thinkingSteps.push({
+        stepIndex: index,
+        type: 'thinking' as StepType,
+        subtype: null,
+        content: block.thinking,
+        contentSummary: truncate(block.thinking, 200),
+        tokensIn: 0,
+        tokensOut: 0,
+        cacheCreationTokens: 0,
+        cacheReadTokens: 0,
+        durationMs: null,
+        toolName: null,
+        toolInput: null,
+        toolOutput: null,
+        isError: false,
+        isRetry: false,
+        retryOfStepId: null,
+        createdAt,
+      })
+    } else if (block.type === 'text' && typeof block.text === 'string') {
       textParts.push(block.text)
     } else if (block.type === 'tool_use' && typeof block.name === 'string') {
       steps.push({
@@ -198,7 +223,6 @@ function parseAssistantEntry(
         createdAt,
       })
     }
-    // thinking blocks are skipped
   }
 
   // Emit a text response step if there's text content
@@ -253,9 +277,41 @@ function parseAssistantEntry(
     })
   }
 
-  if (steps.length === 0) return null
-  if (steps.length === 1) return steps[0]!
-  return steps
+  // Prepend thinking steps before text/tool steps
+  const allSteps = [...thinkingSteps, ...steps]
+
+  if (allSteps.length === 0) return null
+  if (allSteps.length === 1) return allSteps[0]!
+  return allSteps
+}
+
+function parseProgressEntry(e: Record<string, unknown>, index: number, createdAt: Date): PartialStep | null {
+  const data = e['data'] as Record<string, unknown> | undefined
+  if (!data) return null
+  const hookEvent = data['hookEvent'] as string | undefined
+  const hookName = data['hookName'] as string | undefined
+  const command = data['command'] as string | undefined
+  if (!hookEvent) return null
+  const description = hookName ? `${hookEvent}: ${hookName}` : hookEvent
+  return {
+    stepIndex: index,
+    type: 'session_start' as StepType,
+    subtype: null,
+    content: command ?? description,
+    contentSummary: description,
+    tokensIn: 0,
+    tokensOut: 0,
+    cacheCreationTokens: 0,
+    cacheReadTokens: 0,
+    durationMs: null,
+    toolName: hookName ?? null,
+    toolInput: command ?? null,
+    toolOutput: null,
+    isError: false,
+    isRetry: false,
+    retryOfStepId: null,
+    createdAt,
+  }
 }
 
 /** Extract model name string from an assistant entry */

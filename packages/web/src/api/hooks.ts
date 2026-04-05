@@ -36,7 +36,7 @@ export interface SessionStep {
   id: string
   sessionId: string
   stepIndex: number
-  type: 'user_prompt' | 'assistant_response' | 'tool_call' | 'tool_result' | 'error'
+  type: 'user_prompt' | 'assistant_response' | 'tool_call' | 'tool_result' | 'error' | 'thinking' | 'session_start'
   subtype: string | null
   content: string | null
   tokensIn: number

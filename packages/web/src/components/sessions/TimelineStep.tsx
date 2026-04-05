@@ -24,6 +24,8 @@ const STEP_CONFIG: Record<string, StepConfig> = {
   tool_call:          { icon: '\u25CF', color: 'text-purple-400', label: 'Tool' },
   tool_result:        { icon: '\u25CB', color: 'text-gray-500',   label: 'Result' },
   error:              { icon: '\u25CF', color: 'text-red-500',    label: 'Error' },
+  thinking:           { icon: '\u25C6', color: 'text-amber-400',  label: 'Thinking' },
+  session_start:      { icon: '\u25CE', color: 'text-gray-500',   label: 'Hook' },
 }
 
 const FALLBACK_CONFIG: StepConfig = STEP_CONFIG['tool_call']!
@@ -168,7 +170,19 @@ export default function TimelineStep({ step, isExpanded, onToggle }: TimelineSte
               )
             })()}
 
-            {!isEditTool(step) && !isBashTool(step) && step.type !== 'error' && step.content && (
+            {step.type === 'thinking' && step.content && (
+              <div className="text-sm text-amber-200/70 whitespace-pre-wrap bg-amber-950/20 border border-amber-800/30 rounded-md p-3 italic">
+                {step.content}
+              </div>
+            )}
+
+            {step.type === 'session_start' && (
+              <div className="text-xs font-mono text-gray-400 bg-gray-900 rounded-md p-2">
+                {step.toolInput && <span className="text-gray-500">$ {step.toolInput}</span>}
+              </div>
+            )}
+
+            {!isEditTool(step) && !isBashTool(step) && step.type !== 'error' && step.type !== 'thinking' && step.type !== 'session_start' && step.content && (
               <div className="text-sm text-gray-300 whitespace-pre-wrap">
                 {step.content}
               </div>
