@@ -108,6 +108,8 @@ function parseUserEntry(
       contentSummary: outputText ? truncate(outputText, 200) : null,
       tokensIn: 0,
       tokensOut: 0,
+      cacheCreationTokens: 0,
+      cacheReadTokens: 0,
       durationMs: null,
       toolName: null,
       toolInput: null,
@@ -129,6 +131,8 @@ function parseUserEntry(
       contentSummary: truncate(content, 200),
       tokensIn: 0,
       tokensOut: 0,
+      cacheCreationTokens: 0,
+      cacheReadTokens: 0,
       durationMs: null,
       toolName: null,
       toolInput: null,
@@ -160,10 +164,10 @@ function parseAssistantEntry(
 
   // Only take usage from final entry of a turn (stop_reason != null)
   const isFinal = stopReason != null && stopReason !== ''
+  const cacheCreationTokens = isFinal ? (usage.cache_creation_input_tokens ?? 0) : 0
+  const cacheReadTokens = isFinal ? (usage.cache_read_input_tokens ?? 0) : 0
   const tokensIn = isFinal
-    ? (usage.input_tokens ?? 0) +
-      (usage.cache_creation_input_tokens ?? 0) +
-      (usage.cache_read_input_tokens ?? 0)
+    ? (usage.input_tokens ?? 0) + cacheCreationTokens + cacheReadTokens
     : 0
   const tokensOut = isFinal ? (usage.output_tokens ?? 0) : 0
 
@@ -182,6 +186,8 @@ function parseAssistantEntry(
         contentSummary: `Tool call: ${block.name}`,
         tokensIn: 0,
         tokensOut: 0,
+        cacheCreationTokens: 0,
+        cacheReadTokens: 0,
         durationMs: null,
         toolName: block.name,
         toolInput: block.input ? JSON.stringify(block.input) : null,
@@ -206,6 +212,8 @@ function parseAssistantEntry(
       contentSummary: truncate(fullText, 200),
       tokensIn,
       tokensOut,
+      cacheCreationTokens,
+      cacheReadTokens,
       durationMs: null,
       toolName: null,
       toolInput: null,
@@ -220,6 +228,8 @@ function parseAssistantEntry(
     const first = steps[0]!
     first.tokensIn = tokensIn
     first.tokensOut = tokensOut
+    first.cacheCreationTokens = cacheCreationTokens
+    first.cacheReadTokens = cacheReadTokens
   } else if (isFinal) {
     // Entry with no text and no tools but has usage (e.g. empty final streaming entry)
     steps.push({
@@ -230,6 +240,8 @@ function parseAssistantEntry(
       contentSummary: null,
       tokensIn,
       tokensOut,
+      cacheCreationTokens,
+      cacheReadTokens,
       durationMs: null,
       toolName: null,
       toolInput: null,

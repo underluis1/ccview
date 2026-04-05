@@ -95,6 +95,8 @@ function mapStepRow(row: Record<string, unknown>): Step {
     contentSummary: (row['content_summary'] as string) ?? null,
     tokensIn: (row['tokens_in'] as number) ?? 0,
     tokensOut: (row['tokens_out'] as number) ?? 0,
+    cacheCreationTokens: (row['cache_creation_tokens'] as number) ?? 0,
+    cacheReadTokens: (row['cache_read_tokens'] as number) ?? 0,
     durationMs: (row['duration_ms'] as number) ?? null,
     toolName: (row['tool_name'] as string) ?? null,
     toolInput: (row['tool_input'] as string) ?? null,
@@ -219,18 +221,35 @@ export function updateSessionHash(db: Database.Database, logPath: string, hash: 
   db.prepare(`UPDATE sessions SET log_hash = ? WHERE raw_log_path = ?`).run(hash, logPath)
 }
 
+export function getSessionByLogPath(
+  db: Database.Database,
+  logPath: string,
+): { id: string; logHash: string | null } | null {
+  const row = db
+    .prepare(`SELECT id, log_hash FROM sessions WHERE raw_log_path = ?`)
+    .get(logPath) as { id: string; log_hash: string | null } | undefined
+  if (!row) return null
+  return { id: row.id, logHash: row.log_hash }
+}
+
+export function deleteSessionById(db: Database.Database, id: string): void {
+  db.prepare(`DELETE FROM sessions WHERE id = ?`).run(id)
+}
+
 // ── Steps ──────────────────────────────────────────────────────────
 
 export function insertStep(db: Database.Database, step: Step): void {
   db.prepare(`
     INSERT INTO steps (
       id, session_id, step_index, type, subtype,
-      content, content_summary, tokens_in, tokens_out, duration_ms,
+      content, content_summary, tokens_in, tokens_out,
+      cache_creation_tokens, cache_read_tokens, duration_ms,
       tool_name, tool_input, tool_output,
       is_error, is_retry, retry_of_step_id, created_at
     ) VALUES (
       @id, @sessionId, @stepIndex, @type, @subtype,
-      @content, @contentSummary, @tokensIn, @tokensOut, @durationMs,
+      @content, @contentSummary, @tokensIn, @tokensOut,
+      @cacheCreationTokens, @cacheReadTokens, @durationMs,
       @toolName, @toolInput, @toolOutput,
       @isError, @isRetry, @retryOfStepId, @createdAt
     )
@@ -244,6 +263,8 @@ export function insertStep(db: Database.Database, step: Step): void {
     contentSummary: step.contentSummary,
     tokensIn: step.tokensIn,
     tokensOut: step.tokensOut,
+    cacheCreationTokens: step.cacheCreationTokens,
+    cacheReadTokens: step.cacheReadTokens,
     durationMs: step.durationMs,
     toolName: step.toolName,
     toolInput: step.toolInput,

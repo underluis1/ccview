@@ -1,7 +1,15 @@
 import type Database from 'better-sqlite3'
 import { randomUUID } from 'node:crypto'
 import type { ParsedLogEntry, Session, Step, FileImpact, Project } from '../types.js'
-import { insertSession, insertStep, insertFileImpact, upsertProject, updateSessionHash } from './queries.js'
+import {
+  insertSession,
+  insertStep,
+  insertFileImpact,
+  upsertProject,
+  updateSessionHash,
+  getSessionByLogPath,
+  deleteSessionById,
+} from './queries.js'
 
 export function indexSession(
   db: Database.Database,
@@ -9,6 +17,17 @@ export function indexSession(
   logPath: string,
   hash: string,
 ): void {
+  // Deduplication: check if a session with the same raw_log_path already exists
+  const existing = getSessionByLogPath(db, logPath)
+  if (existing) {
+    if (existing.logHash === hash) {
+      // Same file, same content — skip re-indexing
+      return
+    }
+    // Same path but different hash (file was updated) — delete old and re-index
+    deleteSessionById(db, existing.id)
+  }
+
   const sessionId = randomUUID()
 
   const session: Session = {

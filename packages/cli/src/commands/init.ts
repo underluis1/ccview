@@ -8,7 +8,6 @@ import {
   computeFileHash,
   sessionExistsByHash,
 } from '@ccview/core'
-import { DEFAULT_PRICING } from '@ccview/core'
 import { estimateCost } from '@ccview/core'
 import { printBox, printError, printSuccess } from '../utils/terminal-ui.js'
 
@@ -54,14 +53,11 @@ export const initCommand = new Command('init')
 
           const parsed = await parseSession(file.filePath)
 
-          if (parsed.session.model) {
-            const pricing = DEFAULT_PRICING[parsed.session.model]
-            parsed.session.totalCostUsd = estimateCost(
-              parsed.session.totalTokensIn,
-              parsed.session.totalTokensOut,
-              pricing,
-            )
-          }
+          parsed.session.totalCostUsd = estimateCost(
+            parsed.session.totalTokensIn,
+            parsed.session.totalTokensOut,
+            parsed.session.model,
+          )
 
           indexSession(db, parsed, file.filePath, file.hash)
           indexed++

@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS sessions (
 
 CREATE INDEX IF NOT EXISTS idx_sessions_project ON sessions(project_name);
 CREATE INDEX IF NOT EXISTS idx_sessions_date ON sessions(started_at DESC);
+CREATE INDEX IF NOT EXISTS idx_sessions_hash ON sessions(log_hash);
 
 CREATE TABLE IF NOT EXISTS steps (
   id TEXT PRIMARY KEY,
@@ -44,6 +45,8 @@ CREATE TABLE IF NOT EXISTS steps (
   content_summary TEXT,
   tokens_in INTEGER DEFAULT 0,
   tokens_out INTEGER DEFAULT 0,
+  cache_creation_tokens INTEGER DEFAULT 0,
+  cache_read_tokens INTEGER DEFAULT 0,
   duration_ms INTEGER,
   tool_name TEXT,
   tool_input TEXT,
@@ -141,6 +144,7 @@ ORDER BY day DESC;
 
 const INITIAL_VERSION = 1
 const RECALCULATE_COSTS_VERSION = 2
+const ADD_CACHE_TOKENS_VERSION = 3
 
 export function initSchema(db: Database.Database): void {
   db.exec(SCHEMA_SQL)
@@ -203,5 +207,31 @@ function runMigrations(db: Database.Database): void {
     })
 
     txn()
+  }
+
+  // Migration 3: add cache_creation_tokens and cache_read_tokens to steps
+  const hasMigration3 = db
+    .prepare<[number], { version: number }>(`SELECT version FROM _migrations WHERE version = ?`)
+    .get(ADD_CACHE_TOKENS_VERSION)
+
+  if (!hasMigration3) {
+    const txn3 = db.transaction(() => {
+      // SQLite allows ADD COLUMN; these are safe no-ops if columns already exist on a fresh DB
+      try {
+        db.prepare(`ALTER TABLE steps ADD COLUMN cache_creation_tokens INTEGER DEFAULT 0`).run()
+      } catch {
+        // Column may already exist on fresh DBs created with the new schema
+      }
+      try {
+        db.prepare(`ALTER TABLE steps ADD COLUMN cache_read_tokens INTEGER DEFAULT 0`).run()
+      } catch {
+        // Column may already exist on fresh DBs created with the new schema
+      }
+      db.prepare(`INSERT INTO _migrations (version, name) VALUES (?, ?)`).run(
+        ADD_CACHE_TOKENS_VERSION,
+        'add_cache_tokens_to_steps',
+      )
+    })
+    txn3()
   }
 }

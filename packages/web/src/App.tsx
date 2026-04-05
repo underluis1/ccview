@@ -5,6 +5,8 @@ import Dashboard from './pages/Dashboard'
 import Sessions from './pages/Sessions'
 import SessionDetail from './pages/SessionDetail'
 import Projects from './pages/Projects'
+import Analytics from './pages/Analytics'
+import FileImpact from './pages/FileImpact'
 
 type Theme = 'dark' | 'light' | 'system'
 const THEME_KEY = 'ccview-theme'
@@ -26,6 +28,8 @@ const pageTitles: Record<string, string> = {
   '/': 'Dashboard',
   '/sessions': 'Sessioni',
   '/projects': 'Projects',
+  '/analytics': 'Analytics',
+  '/files': 'File Impact',
 }
 
 function getPageTitle(pathname: string): string {
@@ -61,6 +65,8 @@ export default function App() {
         <Route path="/sessions" element={<Sessions />} />
         <Route path="/sessions/:id" element={<SessionDetail />} />
         <Route path="/projects" element={<Projects />} />
+        <Route path="/analytics" element={<Analytics />} />
+        <Route path="/files" element={<FileImpact />} />
       </Routes>
     </Layout>
   )

@@ -63,6 +63,8 @@ export interface Step {
   contentSummary: string | null
   tokensIn: number
   tokensOut: number
+  cacheCreationTokens: number
+  cacheReadTokens: number
   durationMs: number | null
   toolName: string | null
   toolInput: string | null

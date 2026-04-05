@@ -6,6 +6,7 @@ import { apiFetch } from '../api/client'
 import SessionTimeline from '../components/sessions/SessionTimeline'
 import SessionSidebar from '../components/sessions/SessionSidebar'
 import type { Session } from '../api/hooks'
+import { getModelLabel } from '../utils/modelLabel'
 
 function EditableSessionTitle({ session }: { session: Session }) {
   const queryClient = useQueryClient()
@@ -137,7 +138,7 @@ export default function SessionDetail() {
           <p className="text-sm text-gray-400 truncate mt-0.5">
             {session.projectName && <span className="mr-2">{session.projectName} ·</span>}
             {new Date(session.startedAt).toLocaleString('it-IT')}
-            {session.model && <span className="ml-2 text-gray-500">· {session.model}</span>}
+            {session.model && <span className="ml-2 text-gray-500">· {getModelLabel(session.model)}</span>}
           </p>
         </div>
       </div>

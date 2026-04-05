@@ -1,7 +1,27 @@
 import { Command } from 'commander'
 import { createRequire } from 'node:module'
 import { spawn } from 'node:child_process'
+import net from 'node:net'
 import { printError, printInfo, printSuccess } from '../utils/terminal-ui.js'
+
+function isPortInUse(port: number): Promise<boolean> {
+  return new Promise((resolve) => {
+    const server = net.createServer()
+    server.once('error', () => resolve(true))
+    server.once('listening', () => { server.close(); resolve(false) })
+    server.listen(port, '127.0.0.1')
+  })
+}
+
+async function openBrowser(port: number): Promise<void> {
+  try {
+    const openModule = await import('open')
+    await openModule.default(`http://localhost:${port}`)
+    printSuccess(`Opened http://localhost:${port} in browser`)
+  } catch {
+    printInfo(`Open http://localhost:${port} in your browser`)
+  }
+}
 
 export const serveCommand = new Command('serve')
   .description('Start the ccview web dashboard')
@@ -10,6 +30,13 @@ export const serveCommand = new Command('serve')
   .action(async (opts: { port: string; open: boolean }) => {
     try {
       const port = parseInt(opts.port, 10)
+
+      // Se la porta è già occupata, il server è già in esecuzione — apri solo il browser
+      if (await isPortInUse(port)) {
+        printInfo(`Server already running on port ${port}`)
+        if (opts.open) await openBrowser(port)
+        return
+      }
 
       // Risolve @ccview/server sia in monorepo (workspace symlink) che in npm install
       const require = createRequire(import.meta.url)
@@ -34,15 +61,7 @@ export const serveCommand = new Command('serve')
       })
 
       if (opts.open) {
-        setTimeout(async () => {
-          try {
-            const openModule = await import('open')
-            await openModule.default(`http://localhost:${port}`)
-            printSuccess(`Opened http://localhost:${port} in browser`)
-          } catch {
-            printInfo(`Open http://localhost:${port} in your browser`)
-          }
-        }, 1500)
+        setTimeout(() => openBrowser(port), 1500)
       }
 
       process.on('SIGINT', () => { child.kill('SIGINT') })

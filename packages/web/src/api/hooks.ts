@@ -102,7 +102,8 @@ export interface FileHotspot {
 
 export interface TokenAnalytics {
   day: string
-  totalTokens: number
+  tokensIn: number
+  tokensOut: number
   sessions: number
 }
 

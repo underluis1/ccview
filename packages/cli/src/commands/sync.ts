@@ -10,7 +10,6 @@ import {
   indexSession,
   sessionExistsByHash,
   computeFileHash,
-  DEFAULT_PRICING,
   estimateCost,
 } from '@ccview/core'
 import { printBox, printError, printSuccess, printInfo } from '../utils/terminal-ui.js'
@@ -47,14 +46,11 @@ async function syncSessions(opts: { rebuild: boolean }): Promise<void> {
 
       const parsed = await parseSession(file.filePath)
 
-      if (parsed.session.model) {
-        const pricing = DEFAULT_PRICING[parsed.session.model]
-        parsed.session.totalCostUsd = estimateCost(
-          parsed.session.totalTokensIn,
-          parsed.session.totalTokensOut,
-          pricing,
-        )
-      }
+      parsed.session.totalCostUsd = estimateCost(
+        parsed.session.totalTokensIn,
+        parsed.session.totalTokensOut,
+        parsed.session.model,
+      )
 
       indexSession(db, parsed, file.filePath, file.hash)
       indexed++
@@ -101,14 +97,11 @@ async function watchForChanges(): Promise<void> {
 
       const parsed = await parseSession(filePath)
 
-      if (parsed.session.model) {
-        const pricing = DEFAULT_PRICING[parsed.session.model]
-        parsed.session.totalCostUsd = estimateCost(
-          parsed.session.totalTokensIn,
-          parsed.session.totalTokensOut,
-          pricing,
-        )
-      }
+      parsed.session.totalCostUsd = estimateCost(
+        parsed.session.totalTokensIn,
+        parsed.session.totalTokensOut,
+        parsed.session.model,
+      )
 
       indexSession(db, parsed, filePath, hash)
       printSuccess(`Indexed new session from ${filename}`)

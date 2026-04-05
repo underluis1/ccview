@@ -7,7 +7,6 @@ import {
   indexSession,
   estimateCost,
 } from '@ccview/core'
-import { DEFAULT_PRICING } from '@ccview/core'
 
 interface SyncResult {
   added: number
@@ -48,14 +47,11 @@ const syncRoutes: FastifyPluginAsync = async (fastify) => {
 
         const parsed = await parseSession(file.filePath)
 
-        if (parsed.session.model) {
-          const pricing = DEFAULT_PRICING[parsed.session.model]
-          parsed.session.totalCostUsd = estimateCost(
-            parsed.session.totalTokensIn,
-            parsed.session.totalTokensOut,
-            pricing,
-          )
-        }
+        parsed.session.totalCostUsd = estimateCost(
+          parsed.session.totalTokensIn,
+          parsed.session.totalTokensOut,
+          parsed.session.model,
+        )
 
         indexSession(db, parsed, file.filePath, file.hash)
 

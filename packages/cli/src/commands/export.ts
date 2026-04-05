@@ -15,10 +15,10 @@ function sessionsToCSV(sessions: Session[]): string {
     'total_steps', 'tool_calls', 'errors', 'model', 'summary',
   ]
   const rows = sessions.map((s) => [
-    s.id,
-    s.projectName ?? '',
-    s.startedAt.toISOString(),
-    s.endedAt?.toISOString() ?? '',
+    csvEscape(s.id),
+    csvEscape(s.projectName ?? ''),
+    csvEscape(s.startedAt.toISOString()),
+    csvEscape(s.endedAt?.toISOString() ?? ''),
     String(s.durationSeconds ?? ''),
     String(s.totalTokensIn),
     String(s.totalTokensOut),
@@ -26,7 +26,7 @@ function sessionsToCSV(sessions: Session[]): string {
     String(s.totalSteps),
     String(s.toolCallCount),
     String(s.errorCount),
-    s.model ?? '',
+    csvEscape(s.model ?? ''),
     csvEscape(s.summary ?? ''),
   ])
 
@@ -40,17 +40,17 @@ function stepsToCSV(steps: Step[]): string {
     'is_error', 'created_at',
   ]
   const rows = steps.map((s) => [
-    s.id,
-    s.sessionId,
+    csvEscape(s.id),
+    csvEscape(s.sessionId),
     String(s.stepIndex),
-    s.type,
-    s.subtype ?? '',
+    csvEscape(s.type),
+    csvEscape(s.subtype ?? ''),
     String(s.tokensIn),
     String(s.tokensOut),
     String(s.durationMs ?? ''),
-    s.toolName ?? '',
+    csvEscape(s.toolName ?? ''),
     String(s.isError),
-    s.createdAt.toISOString(),
+    csvEscape(s.createdAt.toISOString()),
   ])
 
   return [headers.join(','), ...rows.map((r) => r.join(','))].join('\n')

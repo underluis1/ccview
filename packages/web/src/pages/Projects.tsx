@@ -200,7 +200,7 @@ export default function Projects() {
       <div className="flex items-start gap-2 bg-amber-900/20 border border-amber-700/40 rounded-xl px-4 py-3">
         <span className="text-amber-500 mt-0.5 shrink-0">⚠</span>
         <p className="text-xs text-amber-300/80 leading-relaxed">
-          I costi mostrati sono <strong>stime basate sui prezzi API Anthropic</strong> (Opus $15/$75 per 1M token, Sonnet $3/$15, Haiku $0.25/$1.25).
+          I costi mostrati sono <strong>stime basate sui prezzi API Anthropic</strong> (Opus 4.6 $5/$25, Sonnet $3/$15, Haiku 4.5 $1/$5 per 1M token).
           Non riflettono il costo effettivo del piano Claude Code in abbonamento.
         </p>
       </div>

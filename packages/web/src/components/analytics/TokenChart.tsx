@@ -67,7 +67,8 @@ export default function TokenChart({ data }: TokenChartProps) {
           <XAxis dataKey="dayLabel" tick={{ fill: '#9ca3af', fontSize: 12 }} />
           <YAxis tickFormatter={formatToken} tick={{ fill: '#9ca3af', fontSize: 12 }} />
           <Tooltip content={<CustomTooltip />} />
-          <Bar dataKey="totalTokens" name="Tokens" fill="#3b82f6" />
+          <Bar dataKey="tokensIn" name="Tokens In" fill="#3b82f6" stackId="tokens" />
+          <Bar dataKey="tokensOut" name="Tokens Out" fill="#8b5cf6" stackId="tokens" />
         </BarChart>
       </ResponsiveContainer>
     </div>

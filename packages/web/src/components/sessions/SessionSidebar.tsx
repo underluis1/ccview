@@ -1,5 +1,6 @@
 import type { Session, SessionFile } from '../../api/hooks'
 import Badge from '../shared/Badge'
+import { getModelLabel } from '../../utils/modelLabel'
 
 interface SessionSidebarProps {
   files: SessionFile[]
@@ -61,7 +62,7 @@ export default function SessionSidebar({ files, session }: SessionSidebarProps) 
           <dd className="text-gray-200 text-right">{session.toolCallCount}</dd>
 
           <dt className="text-gray-400">Model</dt>
-          <dd className="text-gray-200 text-right font-mono text-xs">{session.model ?? '—'}</dd>
+          <dd className="text-gray-200 text-right font-mono text-xs">{getModelLabel(session.model) ?? '—'}</dd>
         </dl>
       </div>
 

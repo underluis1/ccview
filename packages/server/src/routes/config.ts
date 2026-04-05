@@ -10,7 +10,6 @@ import {
   sessionExistsByHash,
   listSessions,
   estimateCost,
-  DEFAULT_PRICING,
 } from '@ccview/core'
 
 const CONFIG_DIR = path.join(os.homedir(), '.ccview')
@@ -23,6 +22,13 @@ function readConfig(): Record<string, unknown> {
   } catch {
     return {}
   }
+}
+
+function csvEscape(value: string): string {
+  if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+    return '"' + value.replace(/"/g, '""') + '"'
+  }
+  return value
 }
 
 function writeConfig(config: Record<string, unknown>): void {
@@ -71,14 +77,11 @@ const configRoutes: FastifyPluginAsync = async (fastify) => {
 
           const parsed = await parseSession(file.filePath)
 
-          if (parsed.session.model) {
-            const pricing = DEFAULT_PRICING[parsed.session.model]
-            parsed.session.totalCostUsd = estimateCost(
-              parsed.session.totalTokensIn,
-              parsed.session.totalTokensOut,
-              pricing,
-            )
-          }
+          parsed.session.totalCostUsd = estimateCost(
+            parsed.session.totalTokensIn,
+            parsed.session.totalTokensOut,
+            parsed.session.model,
+          )
 
           indexSession(fastify.db, parsed, file.filePath, hash)
           newSessions++
@@ -122,16 +125,16 @@ const configRoutes: FastifyPluginAsync = async (fastify) => {
       const header = 'id,projectName,startedAt,endedAt,durationSeconds,totalTokensIn,totalTokensOut,totalCostUsd,totalSteps,model\n'
       const rows = sessions.map((s) =>
         [
-          s.id,
-          s.projectName ?? '',
-          s.startedAt.toISOString(),
-          s.endedAt?.toISOString() ?? '',
+          csvEscape(s.id),
+          csvEscape(s.projectName ?? ''),
+          csvEscape(s.startedAt.toISOString()),
+          csvEscape(s.endedAt?.toISOString() ?? ''),
           s.durationSeconds ?? '',
           s.totalTokensIn,
           s.totalTokensOut,
           s.totalCostUsd,
           s.totalSteps,
-          s.model ?? '',
+          csvEscape(s.model ?? ''),
         ].join(',')
       ).join('\n')
 
