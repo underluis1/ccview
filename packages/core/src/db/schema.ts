@@ -146,6 +146,7 @@ const INITIAL_VERSION = 1
 const RECALCULATE_COSTS_VERSION = 2
 const ADD_CACHE_TOKENS_VERSION = 3
 const REPARSE_ALL_VERSION = 4
+const RECALCULATE_COSTS_FROM_STEPS_VERSION = 5
 
 export function initSchema(db: Database.Database): void {
   db.exec(SCHEMA_SQL)
@@ -252,5 +253,65 @@ function runMigrations(db: Database.Database): void {
     })
     txn4()
     console.log('[migration] Invalidated all session hashes — next sync will re-parse everything')
+  }
+
+  // Migration 5: recalculate total_cost_usd from steps table using correct cache pricing
+  // Fixes: cache_creation_tokens priced at $3.75/M instead of $3/M
+  const hasMigration5 = db
+    .prepare<[number], { version: number }>(`SELECT version FROM _migrations WHERE version = ?`)
+    .get(RECALCULATE_COSTS_FROM_STEPS_VERSION)
+
+  if (!hasMigration5) {
+    const sessions = db
+      .prepare<[], { id: string; model: string | null }>(
+        `SELECT id, model FROM sessions`
+      )
+      .all()
+
+    const getStepTotals = db.prepare<[string], {
+      tokens_in: number; tokens_out: number;
+      cache_creation: number; cache_read: number
+    }>(`
+      SELECT
+        COALESCE(SUM(tokens_in), 0) as tokens_in,
+        COALESCE(SUM(tokens_out), 0) as tokens_out,
+        COALESCE(SUM(cache_creation_tokens), 0) as cache_creation,
+        COALESCE(SUM(cache_read_tokens), 0) as cache_read
+      FROM steps WHERE session_id = ?
+    `)
+
+    const updateCost = db.prepare<[number, string]>(
+      `UPDATE sessions SET total_cost_usd = ? WHERE id = ?`
+    )
+
+    const txn5 = db.transaction(() => {
+      for (const s of sessions) {
+        const tok = getStepTotals.get(s.id)
+        if (!tok) continue
+        const pricing = getPricingForModel(s.model)
+        const regularIn = tok.tokens_in - tok.cache_creation - tok.cache_read
+        const cost =
+          (regularIn / 1_000_000) * pricing.inputPer1M +
+          (tok.cache_creation / 1_000_000) * pricing.cacheWrite5mPer1M +
+          (tok.cache_read / 1_000_000) * pricing.cacheHitPer1M +
+          (tok.tokens_out / 1_000_000) * pricing.outputPer1M
+        updateCost.run(Math.round(cost * 1_000_000) / 1_000_000, s.id)
+      }
+
+      // Update project totals
+      db.prepare(`
+        UPDATE projects SET total_cost_usd = (
+          SELECT COALESCE(SUM(total_cost_usd), 0)
+          FROM sessions WHERE project_path = projects.path
+        )
+      `).run()
+
+      db.prepare(`INSERT INTO _migrations (version, name) VALUES (?, ?)`).run(
+        RECALCULATE_COSTS_FROM_STEPS_VERSION,
+        'recalculate_costs_from_steps_with_cache_pricing',
+      )
+    })
+    txn5()
+    console.log('[migration] Recalculated all session costs with correct cache pricing')
   }
 }
