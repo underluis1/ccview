@@ -57,11 +57,13 @@ const configRoutes: FastifyPluginAsync = async (fastify) => {
     Body: { force?: boolean } | undefined
   }>('/sync', async (request, reply) => {
     const force = (request.body as { force?: boolean } | undefined)?.force ?? false
+    console.log(`[sync] start — force=${force}`)
 
     try {
       const claudePath = path.join(os.homedir(), '.claude')
       const projectsDir = path.join(claudePath, 'projects')
       const sessionFiles = await findSessionFiles(projectsDir)
+      console.log(`[sync] found ${sessionFiles.length} session files`)
 
       let newSessions = 0
       let skipped = 0
@@ -76,6 +78,7 @@ const configRoutes: FastifyPluginAsync = async (fastify) => {
           }
 
           const parsed = await parseSession(file.filePath)
+          console.log(`[sync] indexing ${path.basename(file.filePath)} — steps=${parsed.steps.length}`)
 
           const totalCacheReadTokens = parsed.steps.reduce((sum, s) => sum + (s.cacheReadTokens ?? 0), 0)
           parsed.session.totalCostUsd = estimateCost(
@@ -88,13 +91,13 @@ const configRoutes: FastifyPluginAsync = async (fastify) => {
           indexSession(fastify.db, parsed, file.filePath, hash, force)
           newSessions++
         } catch (err) {
-          errors.push({
-            filePath: file.filePath,
-            error: err instanceof Error ? err.message : String(err),
-          })
+          const msg = err instanceof Error ? err.message : String(err)
+          console.error(`[sync] error on ${path.basename(file.filePath)}: ${msg}`)
+          errors.push({ filePath: file.filePath, error: msg })
         }
       }
 
+      console.log(`[sync] done — new=${newSessions} skipped=${skipped} errors=${errors.length}`)
       return {
         data: {
           sessionsFound: sessionFiles.length,
@@ -104,10 +107,9 @@ const configRoutes: FastifyPluginAsync = async (fastify) => {
         },
       }
     } catch (err) {
-      return reply.code(500).send({
-        error: 'Sync failed',
-        message: err instanceof Error ? err.message : String(err),
-      })
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error(`[sync] fatal: ${msg}`)
+      return reply.code(500).send({ error: 'Sync failed', message: msg })
     }
   })
 

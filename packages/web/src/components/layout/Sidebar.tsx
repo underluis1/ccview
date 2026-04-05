@@ -37,7 +37,7 @@ export default function Sidebar() {
       </nav>
 
       <div className="px-5 py-4 text-xs text-gray-600">
-        ccview v0.1.0
+        ccview v{__APP_VERSION__}
       </div>
     </aside>
   )
