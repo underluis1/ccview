@@ -32,7 +32,7 @@ export default function SessionTimeline({ steps, sessionId }: SessionTimelinePro
     if (!searchQuery.trim()) return steps
     const q = searchQuery.toLowerCase()
     return steps.filter(s => {
-      const texts = [s.content, s.toolName, s.toolInput, s.toolOutput, s.subtype]
+      const texts = [s.type, s.content, s.toolName, s.toolInput, s.toolOutput, s.subtype]
       return texts.some(t => t?.toLowerCase().includes(q))
     })
   }, [steps, searchQuery])
