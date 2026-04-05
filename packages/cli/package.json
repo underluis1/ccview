@@ -1,6 +1,6 @@
 {
   "name": "@ccview/cli",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "description": "Claude Code sessions dashboard — visualize costs, files and decisions. Local. Private.",
   "license": "MIT",
   "author": "underluis1",
@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@ccview/core": "^0.1.9",
-    "@ccview/server": "^0.1.14",
+    "@ccview/server": "^0.1.15",
     "commander": "^12.0.0",
     "chalk": "^5.3.0",
     "cli-table3": "^0.6.3",

@@ -197,6 +197,21 @@ export function useTokenAnalytics(filters?: AnalyticsFilters) {
   })
 }
 
+export interface CostBreakdown {
+  regularInputTokens: number
+  cacheWriteTokens: number
+  cacheReadTokens: number
+  outputTokens: number
+  totalSessions: number
+}
+
+export function useCostBreakdown(filters?: AnalyticsFilters) {
+  return useQuery({
+    queryKey: ['cost-breakdown', filters],
+    queryFn: () => apiFetch<CostBreakdown>(`/stats/cost-breakdown${buildQuery(filters)}`),
+  })
+}
+
 export interface SyncResult {
   added: number
   updated: number

@@ -7,7 +7,8 @@ import { useQuery } from '@tanstack/react-query'
 import { apiFetch } from '../api/client'
 import UsageHeatmap from '../components/analytics/UsageHeatmap'
 import type { OverviewStats, DailyCost, Session } from '../api/hooks'
-import { useProjects } from '../api/hooks'
+import { useProjects, useCostBreakdown } from '../api/hooks'
+import CostBreakdownCard from '../components/analytics/CostBreakdownCard'
 
 // ─── helpers ────────────────────────────────────────────────
 function localISO(d: Date): string {
@@ -210,6 +211,8 @@ export default function Dashboard() {
     queryFn: () => apiFetch<OverviewStats>(`/stats/overview?from=${from}&to=${to}`),
   })
 
+  const { data: costBreakdown, isLoading: costLoading } = useCostBreakdown({ from, to })
+
   const totalTokens = (stats?.totalTokensIn ?? 0) + (stats?.totalTokensOut ?? 0)
 
   return (
@@ -259,6 +262,9 @@ export default function Dashboard() {
           </>
         )}
       </div>
+
+      {/* ── Cost Breakdown ── */}
+      <CostBreakdownCard data={costBreakdown} isLoading={costLoading} />
 
       {/* ── Chart + Top Projects ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
