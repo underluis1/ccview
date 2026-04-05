@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { apiFetch } from '../api/client'
+import { getModelTier, getModelLabel } from '../utils/modelLabel'
 
 interface ModelBreakdown {
   model: string
@@ -47,10 +48,12 @@ const MODEL_COLORS: Record<string, string> = {
 }
 
 function ModelBadge({ model }: { model: string }) {
-  const cls = MODEL_COLORS[model] ?? MODEL_COLORS['unknown']
+  const tier = getModelTier(model)
+  const cls = MODEL_COLORS[tier] ?? MODEL_COLORS['unknown']
+  const label = getModelLabel(model) ?? model
   return (
     <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${cls}`}>
-      {model}
+      {label}
     </span>
   )
 }
@@ -257,7 +260,7 @@ export default function Projects() {
                         <p className="font-medium text-gray-100">{project.name || '(root)'}</p>
                         <p className="text-xs text-gray-500 truncate max-w-xs">{project.path}</p>
                         <div className="mt-1 flex items-center gap-1 flex-wrap">
-                          {(project.modelBreakdown ?? []).map((b) => (
+                          {(project.modelBreakdown ?? []).filter((b) => b.model && b.model !== 'unknown').map((b) => (
                             <ModelBadge key={b.model} model={b.model} />
                           ))}
                         </div>

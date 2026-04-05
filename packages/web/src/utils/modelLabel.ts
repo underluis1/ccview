@@ -1,5 +1,6 @@
 // Model ID → human-readable label mapping (mirrors @ccview/core MODEL_PRICING)
 const MODEL_LABELS: Record<string, string> = {
+  // Con date suffix (come appaiono in alcuni log)
   'claude-opus-4-6-20260401':   'Opus 4.6',
   'claude-sonnet-4-6-20260401': 'Sonnet 4.6',
   'claude-opus-4-5-20260301':   'Opus 4.5',
@@ -8,11 +9,44 @@ const MODEL_LABELS: Record<string, string> = {
   'claude-opus-4-20250514':     'Opus 4',
   'claude-sonnet-4-20250514':   'Sonnet 4',
   'claude-opus-4-1-20250414':   'Opus 4.1',
+  'claude-3-7-sonnet-20250219': 'Sonnet 3.7',
   'claude-3-opus-20240229':     'Opus 3',
   'claude-3-5-sonnet-20241022': 'Sonnet 3.5 v2',
   'claude-3-5-sonnet-20240620': 'Sonnet 3.5',
   'claude-3-5-haiku-20241022':  'Haiku 3.5',
   'claude-3-haiku-20240307':    'Haiku 3',
+  // Senza date suffix (come appaiono nei log di Claude Code)
+  'claude-opus-4-6':    'Opus 4.6',
+  'claude-sonnet-4-6':  'Sonnet 4.6',
+  'claude-opus-4-5':    'Opus 4.5',
+  'claude-sonnet-4-5':  'Sonnet 4.5',
+  'claude-haiku-4-5':   'Haiku 4.5',
+  'claude-opus-4':      'Opus 4',
+  'claude-sonnet-4':    'Sonnet 4',
+  'claude-opus-4-1':    'Opus 4.1',
+  'claude-3-7-sonnet':  'Sonnet 3.7',
+  'claude-3-opus':      'Opus 3',
+  'claude-3-5-sonnet':  'Sonnet 3.5',
+  'claude-3-5-haiku':   'Haiku 3.5',
+  'claude-3-haiku':     'Haiku 3',
+  // Tier legacy (sessioni indicizzate col vecchio parser)
+  'opus':   'Opus',
+  'sonnet': 'Sonnet',
+  'haiku':  'Haiku',
+}
+
+type ModelTier = 'opus' | 'sonnet' | 'haiku' | 'unknown'
+
+/**
+ * Estrae il tier (opus/sonnet/haiku) da qualsiasi model string.
+ */
+export function getModelTier(modelId: string | null): ModelTier {
+  if (!modelId) return 'unknown'
+  const lower = modelId.toLowerCase()
+  if (lower.includes('opus')) return 'opus'
+  if (lower.includes('sonnet')) return 'sonnet'
+  if (lower.includes('haiku')) return 'haiku'
+  return 'unknown'
 }
 
 /**
