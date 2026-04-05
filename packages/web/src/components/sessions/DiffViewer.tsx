@@ -99,17 +99,17 @@ export default function DiffViewer({ oldContent, newContent, language }: DiffVie
   }, [oldContent, newContent, language])
 
   return (
-    <div className="bg-gray-950 rounded-md p-3 text-sm font-mono overflow-x-auto">
+    <div className="bg-background rounded-md p-3 text-sm font-mono overflow-x-auto">
       {diffLines.map((line, idx) => {
         const bgClass =
           line.type === '+' ? 'bg-green-900/30 text-green-300' :
           line.type === '-' ? 'bg-red-900/30 text-red-300' :
-          'text-gray-300'
+          'text-foreground/80'
         const prefix = line.type === ' ' ? '  ' : line.type + ' '
 
         return (
           <div key={idx} className={`${bgClass} px-2 leading-6`}>
-            <span className="select-none text-gray-500 mr-2">{prefix}</span>
+            <span className="select-none text-muted-foreground mr-2">{prefix}</span>
             {highlighted && htmlLines.has(line.text)
               ? <span dangerouslySetInnerHTML={{ __html: htmlLines.get(line.text)! }} />
               : <span>{line.text}</span>

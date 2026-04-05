@@ -46,14 +46,14 @@ export default function Filters({ filters, onChange }: FiltersProps) {
   }
 
   const selectClass =
-    'bg-gray-800 border border-gray-600 text-gray-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500'
+    'bg-input border border-border text-foreground/80 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-ring'
   const inputClass =
-    'bg-gray-800 border border-gray-600 text-gray-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500'
+    'bg-input border border-border text-foreground/80 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-ring'
 
   return (
     <div className="flex flex-wrap items-end gap-3">
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-gray-400">Project</label>
+        <label className="text-xs text-muted-foreground">Project</label>
         <select
           className={selectClass}
           value={filters.project ?? ''}
@@ -69,7 +69,7 @@ export default function Filters({ filters, onChange }: FiltersProps) {
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-gray-400">From</label>
+        <label className="text-xs text-muted-foreground">From</label>
         <input
           type="date"
           className={inputClass}
@@ -79,7 +79,7 @@ export default function Filters({ filters, onChange }: FiltersProps) {
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-gray-400">To</label>
+        <label className="text-xs text-muted-foreground">To</label>
         <input
           type="date"
           className={inputClass}
@@ -89,7 +89,7 @@ export default function Filters({ filters, onChange }: FiltersProps) {
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-gray-400">Model</label>
+        <label className="text-xs text-muted-foreground">Model</label>
         <select
           className={selectClass}
           value={filters.model ?? ''}
@@ -105,7 +105,7 @@ export default function Filters({ filters, onChange }: FiltersProps) {
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-gray-400">Search</label>
+        <label className="text-xs text-muted-foreground">Search</label>
         <input
           type="text"
           placeholder="Search sessions..."
@@ -117,7 +117,7 @@ export default function Filters({ filters, onChange }: FiltersProps) {
 
       <button
         onClick={reset}
-        className="px-3 py-2 text-sm text-gray-400 hover:text-gray-200 border border-gray-600 rounded-lg hover:bg-gray-800 transition-colors"
+        className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground/80 border border-border rounded-lg hover:bg-muted transition-colors"
       >
         Reset
       </button>

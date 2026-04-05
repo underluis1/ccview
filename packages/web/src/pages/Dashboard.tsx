@@ -43,14 +43,14 @@ const PERIODS = [
 ]
 
 // ─── KPI Card ───────────────────────────────────────────────
-function KPI({ label, value, sub, color = 'text-gray-100' }: {
+function KPI({ label, value, sub, color = 'text-foreground' }: {
   label: string; value: string; sub?: string; color?: string
 }) {
   return (
-    <div className="bg-gray-800/70 rounded-2xl p-5 border border-gray-700/60">
-      <p className="text-xs text-gray-500 uppercase tracking-widest mb-2">{label}</p>
+    <div className="bg-card rounded-2xl p-5 border border-border">
+      <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">{label}</p>
       <p className={`text-3xl font-bold ${color}`}>{value}</p>
-      {sub && <p className="text-xs text-gray-500 mt-1">{sub}</p>}
+      {sub && <p className="text-xs text-muted-foreground mt-1">{sub}</p>}
     </div>
   )
 }
@@ -61,11 +61,11 @@ function TokenTooltip({ active, payload, label }: any) {
   const tokIn  = payload.find((p: any) => p.dataKey === 'tokensIn')?.value  ?? 0
   const tokOut = payload.find((p: any) => p.dataKey === 'tokensOut')?.value ?? 0
   return (
-    <div className="bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-xs shadow-xl">
-      <p className="font-semibold text-gray-200 mb-1">{label}</p>
+    <div className="bg-background border border-border rounded-lg px-3 py-2 text-xs shadow-xl">
+      <p className="font-semibold text-foreground/80 mb-1">{label}</p>
       <p className="text-blue-400">In: {formatTokens(tokIn)}</p>
       <p className="text-violet-400">Out: {formatTokens(tokOut)}</p>
-      <p className="text-gray-400 mt-1 border-t border-gray-700 pt-1">Tot: {formatTokens(tokIn + tokOut)}</p>
+      <p className="text-muted-foreground mt-1 border-t border-border pt-1">Tot: {formatTokens(tokIn + tokOut)}</p>
     </div>
   )
 }
@@ -95,9 +95,9 @@ function TokenTrendChart({ from, to, onDayClick }: {
     }))
   }, [tokenData, costData])
 
-  if (isLoading) return <div className="h-48 bg-gray-700/40 rounded-xl animate-pulse" />
+  if (isLoading) return <div className="h-48 bg-muted rounded-xl animate-pulse" />
   if (!chartData.length) return (
-    <div className="h-48 flex items-center justify-center text-gray-500 text-sm">No data for this period</div>
+    <div className="h-48 flex items-center justify-center text-muted-foreground text-sm">No data for this period</div>
   )
 
   const barSize = chartData.length > 45 ? 3 : chartData.length > 20 ? 6 : 10
@@ -105,7 +105,7 @@ function TokenTrendChart({ from, to, onDayClick }: {
 
   return (
     <div className="relative">
-      <p className="absolute -top-6 right-0 text-xs text-gray-600 pointer-events-none">
+      <p className="absolute -top-6 right-0 text-xs text-muted-foreground/60 pointer-events-none">
         click a day to see its sessions
       </p>
       <ResponsiveContainer width="100%" height={200}>
@@ -159,28 +159,28 @@ function TopProjects({ from, to }: { from: string; to: string }) {
 
   if (!top3.length) {
     return (
-      <div className="bg-gray-800/70 rounded-2xl p-5 border border-gray-700/60 flex items-center justify-center min-h-[160px]">
-        <p className="text-sm text-gray-500">No projects in this period</p>
+      <div className="bg-card rounded-2xl p-5 border border-border flex items-center justify-center min-h-[160px]">
+        <p className="text-sm text-muted-foreground">No projects in this period</p>
       </div>
     )
   }
 
   return (
-    <div className="bg-gray-800/70 rounded-2xl p-5 border border-gray-700/60 space-y-5">
-      <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Top projects</h3>
+    <div className="bg-card rounded-2xl p-5 border border-border space-y-5">
+      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Top projects</h3>
       {top3.map((p, i) => (
         <div key={p.name}>
           <div className="flex items-center justify-between mb-1.5">
             <div className="flex items-center gap-2 min-w-0">
               <span>{medals[i]}</span>
-              <span className="text-sm font-medium text-gray-200 truncate">{p.name}</span>
+              <span className="text-sm font-medium text-foreground/80 truncate">{p.name}</span>
             </div>
             <div className="text-right shrink-0 ml-2">
               <span className="text-xs font-semibold text-blue-400">{formatTokens(p.tokens)}</span>
-              <span className="text-xs text-gray-500 ml-1.5">{p.sessions}s</span>
+              <span className="text-xs text-muted-foreground ml-1.5">{p.sessions}s</span>
             </div>
           </div>
-          <div className="h-1.5 bg-gray-700 rounded-full overflow-hidden">
+          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
             <div className="h-full rounded-full transition-all duration-700"
               style={{ width: `${(p.tokens / maxTokens) * 100}%`, backgroundColor: colors[i] }} />
           </div>
@@ -225,28 +225,28 @@ export default function Dashboard() {
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
               activePeriod === p.days
                 ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20'
-                : 'bg-gray-800 text-gray-400 hover:bg-gray-700 border border-gray-700'
+                : 'bg-card text-muted-foreground hover:bg-accent border border-border'
             }`}>
             {p.label}
           </button>
         ))}
         <div className="flex items-center gap-2 ml-2">
-          <label className="text-xs text-gray-500">From</label>
+          <label className="text-xs text-muted-foreground">From</label>
           <input type="date" value={from} onChange={(e) => handleFrom(e.target.value)}
-            className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-gray-200
-                       focus:outline-none focus:border-blue-500 cursor-pointer" />
-          <label className="text-xs text-gray-500">to</label>
+            className="bg-input border border-border rounded-lg px-3 py-1.5 text-sm text-foreground/80
+                       focus:outline-none focus:border-ring cursor-pointer" />
+          <label className="text-xs text-muted-foreground">to</label>
           <input type="date" value={to} onChange={(e) => handleTo(e.target.value)}
             max={todayStr()}
-            className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-gray-200
-                       focus:outline-none focus:border-blue-500 cursor-pointer" />
+            className="bg-input border border-border rounded-lg px-3 py-1.5 text-sm text-foreground/80
+                       focus:outline-none focus:border-ring cursor-pointer" />
         </div>
       </div>
 
       {/* ── KPI ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {statsLoading ? (
-          [...Array(4)].map((_, i) => <div key={i} className="h-28 bg-gray-800 rounded-2xl animate-pulse" />)
+          [...Array(4)].map((_, i) => <div key={i} className="h-28 bg-card rounded-2xl animate-pulse" />)
         ) : (
           <>
             <KPI label="Sessions" value={String(stats?.totalSessions ?? 0)}
@@ -268,10 +268,10 @@ export default function Dashboard() {
 
       {/* ── Chart + Top Projects ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 bg-gray-800/70 rounded-2xl p-5 border border-gray-700/60">
+        <div className="lg:col-span-2 bg-card rounded-2xl p-5 border border-border">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Tokens per day</h3>
-            <div className="flex items-center gap-3 text-xs text-gray-500">
+            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Tokens per day</h3>
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
               <span className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-sm bg-blue-500" />Input
               </span>

@@ -99,28 +99,28 @@ export default function UsageHeatmap() {
 const CELL = 13, GAP = 3, STEP = CELL + GAP
 
   return (
-    <div className="bg-gray-800/70 rounded-2xl p-5 border border-gray-700/60">
+    <div className="bg-card rounded-2xl p-5 border border-border">
       <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
         <div>
-          <h3 className="text-sm font-semibold text-gray-200">Activity — last 12 months</h3>
-          <p className="text-xs text-gray-500 mt-0.5">Each cell = 1 day · intensity = sessions</p>
+          <h3 className="text-sm font-semibold text-foreground/80">Activity — last 12 months</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">Each cell = 1 day · intensity = sessions</p>
         </div>
         <div className="flex gap-5">
           {[
             { value: totalSessions, label: 'sessions', color: 'text-blue-400' },
             { value: formatTokens(totalTokens), label: 'tokens', color: 'text-violet-400' },
-            { value: activeDays, label: 'active days', color: 'text-gray-200' },
+            { value: activeDays, label: 'active days', color: 'text-foreground/80' },
           ].map(({ value, label, color }) => (
             <div key={label} className="text-right">
               <p className={`text-lg font-bold ${color}`}>{value}</p>
-              <p className="text-xs text-gray-500">{label}</p>
+              <p className="text-xs text-muted-foreground">{label}</p>
             </div>
           ))}
         </div>
       </div>
 
       {isLoading ? (
-        <div className="h-28 bg-gray-700/40 rounded animate-pulse" />
+        <div className="h-28 bg-muted rounded animate-pulse" />
       ) : (
         <div className="overflow-x-auto" onMouseLeave={() => setTooltip(null)}>
           <svg width={weeks.length * STEP + 26} height={7 * STEP + 28} className="select-none">
@@ -165,28 +165,28 @@ const CELL = 13, GAP = 3, STEP = CELL + GAP
             )}
           </svg>
           <div className="flex items-center gap-1.5 mt-1 justify-end">
-            <span className="text-xs text-gray-600">Less</span>
+            <span className="text-xs text-muted-foreground/60">Less</span>
             {[0, 0.1, 0.3, 0.6, 0.9].map((v) => (
               <div key={v} className="w-3 h-3 rounded-sm"
                 style={{ backgroundColor: getColor(v * maxSessions, maxSessions) }} />
             ))}
-            <span className="text-xs text-gray-600">More</span>
+            <span className="text-xs text-muted-foreground/60">More</span>
           </div>
         </div>
       )}
 
       {tooltip && (
-        <div className="fixed z-50 bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-xs
+        <div className="fixed z-50 bg-background border border-border rounded-lg px-3 py-2 text-xs
                         pointer-events-none shadow-xl"
           style={{ left: tooltip.x + 16, top: tooltip.y - 64 }}>
-          <p className="font-semibold text-gray-100 mb-1">{tooltip.day}</p>
+          <p className="font-semibold text-foreground mb-1">{tooltip.day}</p>
           {tooltip.sessions > 0 ? (
             <>
               <p className="text-blue-400">{tooltip.sessions} session{tooltip.sessions !== 1 ? 's' : ''}</p>
               <p className="text-violet-400">{formatTokens(tooltip.tokens)} tokens</p>
             </>
           ) : (
-            <p className="text-gray-500">No activity</p>
+            <p className="text-muted-foreground">No activity</p>
           )}
         </div>
       )}

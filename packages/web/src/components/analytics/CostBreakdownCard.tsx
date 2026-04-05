@@ -25,7 +25,7 @@ interface Props {
 
 export default function CostBreakdownCard({ data, isLoading }: Props) {
   if (isLoading) {
-    return <div className="bg-gray-800/70 rounded-2xl p-5 border border-gray-700/60 h-64 animate-pulse" />
+    return <div className="bg-card rounded-2xl p-5 border border-border h-64 animate-pulse" />
   }
 
   if (!data) return null
@@ -63,15 +63,15 @@ export default function CostBreakdownCard({ data, isLoading }: Props) {
   const maxCost = Math.max(...rows.map(r => r.cost), 1)
 
   return (
-    <div className="bg-gray-800/70 rounded-2xl p-5 border border-gray-700/60 space-y-4">
+    <div className="bg-card rounded-2xl p-5 border border-border space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Estimated API cost</h3>
-        <span className="text-xs text-gray-500">{data.totalSessions} sessions</span>
+        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Estimated API cost</h3>
+        <span className="text-xs text-muted-foreground">{data.totalSessions} sessions</span>
       </div>
 
       {/* Total */}
       <div className="flex items-baseline gap-3">
-        <span className="text-3xl font-bold text-gray-100">{usd(totalCost)}</span>
+        <span className="text-3xl font-bold text-foreground">{usd(totalCost)}</span>
         <span className="text-sm text-emerald-400">
           saved {usd(savings)} ({savingsPct.toFixed(0)}%) with cache
         </span>
@@ -95,7 +95,7 @@ export default function CostBreakdownCard({ data, isLoading }: Props) {
       {/* Detail table */}
       <table className="w-full text-xs">
         <thead>
-          <tr className="text-gray-500 border-b border-gray-700">
+          <tr className="text-muted-foreground border-b border-border">
             <th className="text-left py-1.5 font-medium">Type</th>
             <th className="text-right py-1.5 font-medium">Tokens</th>
             <th className="text-right py-1.5 font-medium">Cost</th>
@@ -104,7 +104,7 @@ export default function CostBreakdownCard({ data, isLoading }: Props) {
         </thead>
         <tbody>
           {rows.map(r => (
-            <tr key={r.label} className="border-b border-gray-800 text-gray-300">
+            <tr key={r.label} className="border-b border-border text-foreground/80">
               <td className="py-2 flex items-center gap-2">
                 <span className={`w-2 h-2 rounded-sm ${r.color} shrink-0`} />
                 {r.label}
@@ -112,7 +112,7 @@ export default function CostBreakdownCard({ data, isLoading }: Props) {
               <td className="text-right py-2 tabular-nums">{fmt(r.tokens)}</td>
               <td className="text-right py-2 tabular-nums font-medium">{usd(r.cost)}</td>
               <td className="text-right py-2">
-                <div className="h-1.5 bg-gray-700 rounded-full overflow-hidden ml-auto w-20">
+                <div className="h-1.5 bg-muted rounded-full overflow-hidden ml-auto w-20">
                   <div className={`h-full ${r.color} rounded-full`} style={{ width: `${(r.cost / maxCost) * 100}%` }} />
                 </div>
               </td>
@@ -120,13 +120,13 @@ export default function CostBreakdownCard({ data, isLoading }: Props) {
           ))}
         </tbody>
         <tfoot>
-          <tr className="text-gray-100 font-semibold">
+          <tr className="text-foreground font-semibold">
             <td className="pt-2">Total</td>
             <td className="text-right pt-2 tabular-nums">{fmt(totalTokensIn + data.outputTokens)}</td>
             <td className="text-right pt-2 tabular-nums">{usd(totalCost)}</td>
             <td></td>
           </tr>
-          <tr className="text-gray-500 text-[10px]">
+          <tr className="text-muted-foreground text-[10px]">
             <td colSpan={4} className="pt-1">
               Without prompt cache: {usd(noCacheCost)} · Rates vary by model (Opus/Sonnet/Haiku)
             </td>

@@ -73,13 +73,13 @@ export default function SessionTimeline({ steps, sessionId }: SessionTimelinePro
       <div className="flex items-center gap-3 flex-wrap">
         <button
           onClick={expandAll}
-          className="text-xs px-3 py-1.5 rounded-md bg-gray-700 text-gray-200 hover:bg-gray-600 transition-colors"
+          className="text-xs px-3 py-1.5 rounded-md bg-muted text-foreground/80 hover:bg-accent transition-colors"
         >
           Expand all
         </button>
         <button
           onClick={collapseAll}
-          className="text-xs px-3 py-1.5 rounded-md bg-gray-700 text-gray-200 hover:bg-gray-600 transition-colors"
+          className="text-xs px-3 py-1.5 rounded-md bg-muted text-foreground/80 hover:bg-accent transition-colors"
         >
           Collapse all
         </button>
@@ -91,13 +91,13 @@ export default function SessionTimeline({ steps, sessionId }: SessionTimelinePro
             placeholder="Search steps..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="ml-auto text-sm px-3 py-1.5 rounded-md bg-gray-800 border border-gray-600 text-gray-200 placeholder-gray-500 focus:outline-none focus:border-blue-500 w-64"
+            className="ml-auto text-sm px-3 py-1.5 rounded-md bg-input border border-border text-foreground/80 placeholder:text-muted-foreground focus:outline-none focus:border-ring w-64"
           />
         )}
         {!showSearch && (
           <button
             onClick={() => setShowSearch(true)}
-            className="ml-auto text-xs text-gray-500 hover:text-gray-300 transition-colors"
+            className="ml-auto text-xs text-muted-foreground hover:text-foreground/80 transition-colors"
           >
             Search (Ctrl+F)
           </button>
@@ -106,9 +106,9 @@ export default function SessionTimeline({ steps, sessionId }: SessionTimelinePro
 
       {/* Token meter */}
       {totalTokens > 0 && (
-        <div className="flex items-center gap-3 text-xs text-gray-400">
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
           <span>Tokens: {totalTokens >= 1000 ? `${(totalTokens / 1000).toFixed(1)}k` : totalTokens}</span>
-          <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
+          <div className="flex-1 h-2 bg-card rounded-full overflow-hidden">
             {lastToken && (() => {
               const inPct = totalTokens > 0 ? (lastToken.cumIn / totalTokens) * 100 : 0
               const outPct = totalTokens > 0 ? (lastToken.cumOut / totalTokens) * 100 : 0
@@ -134,7 +134,7 @@ export default function SessionTimeline({ steps, sessionId }: SessionTimelinePro
       )}
 
       {/* Timeline */}
-      <div className="border-l-2 border-gray-700 ml-1.5 flex flex-col gap-1">
+      <div className="border-l-2 border-border ml-1.5 flex flex-col gap-1">
         {filteredSteps.map(step => (
           <TimelineStep
             key={step.id}
@@ -144,7 +144,7 @@ export default function SessionTimeline({ steps, sessionId }: SessionTimelinePro
           />
         ))}
         {filteredSteps.length === 0 && searchQuery && (
-          <p className="text-sm text-gray-500 pl-6 py-4">No steps match "{searchQuery}"</p>
+          <p className="text-sm text-muted-foreground pl-6 py-4">No steps match "{searchQuery}"</p>
         )}
       </div>
     </div>

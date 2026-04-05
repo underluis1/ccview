@@ -11,25 +11,25 @@ interface SessionListProps {
 
 function SkeletonCard() {
   return (
-    <div className="bg-gray-800 rounded-xl p-4 border border-gray-700 animate-pulse">
-      <div className="h-4 bg-gray-700 rounded w-3/4" />
+    <div className="bg-card rounded-xl p-4 border border-border animate-pulse">
+      <div className="h-4 bg-muted rounded w-3/4" />
       <div className="mt-3 flex gap-2">
-        <div className="h-3 bg-gray-700 rounded w-16" />
-        <div className="h-3 bg-gray-700 rounded w-24" />
+        <div className="h-3 bg-muted rounded w-16" />
+        <div className="h-3 bg-muted rounded w-24" />
       </div>
       <div className="mt-3 flex gap-2">
-        <div className="h-5 bg-gray-700 rounded-full w-16" />
-        <div className="h-5 bg-gray-700 rounded-full w-14" />
+        <div className="h-5 bg-muted rounded-full w-16" />
+        <div className="h-5 bg-muted rounded-full w-14" />
       </div>
-      <div className="mt-3 h-1.5 bg-gray-700 rounded-full" />
+      <div className="mt-3 h-1.5 bg-muted rounded-full" />
     </div>
   )
 }
 
 function EmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center py-16 text-gray-400">
-      <svg className="w-12 h-12 mb-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+      <svg className="w-12 h-12 mb-4 text-muted-foreground/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
       </svg>
       <p className="text-sm font-medium">No sessions found</p>
@@ -65,7 +65,7 @@ export default function SessionList({ sessions, isLoading, isLoadingMore, hasMor
           <button
             onClick={onLoadMore}
             disabled={isLoadingMore}
-            className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-800 border border-gray-600 rounded-lg hover:bg-gray-700 disabled:opacity-50 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-foreground/80 bg-card border border-border rounded-lg hover:bg-muted disabled:opacity-50 transition-colors"
           >
             {isLoadingMore ? 'Loading...' : 'Load more'}
           </button>

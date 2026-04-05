@@ -149,33 +149,33 @@ export default function Sessions() {
 
       {/* Banner riepilogo periodo (visibile solo se c'è un filtro data attivo) */}
       {hasSummary && periodLabel && (
-        <div className="bg-gray-800/70 rounded-2xl p-4 border border-gray-700/60
+        <div className="bg-card rounded-2xl p-4 border border-border
                         flex flex-wrap items-center gap-6">
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-widest mb-0.5">Period</p>
-            <p className="text-sm font-semibold text-gray-200 capitalize">{periodLabel}</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-0.5">Period</p>
+            <p className="text-sm font-semibold text-foreground/80 capitalize">{periodLabel}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-widest mb-0.5">Sessions</p>
-            <p className="text-sm font-bold text-gray-100">{stats.totalSessions}</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-0.5">Sessions</p>
+            <p className="text-sm font-bold text-foreground">{stats.totalSessions}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-widest mb-0.5">Total tokens</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-0.5">Total tokens</p>
             <p className="text-sm font-bold text-blue-400">
               {formatTokens(stats.totalTokensIn + stats.totalTokensOut)}
             </p>
           </div>
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-widest mb-0.5">In / Out</p>
-            <p className="text-sm font-medium text-gray-300">
+            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-0.5">In / Out</p>
+            <p className="text-sm font-medium text-foreground/80">
               {formatTokens(stats.totalTokensIn)}
-              <span className="text-gray-600 mx-1">/</span>
+              <span className="text-muted-foreground/60 mx-1">/</span>
               {formatTokens(stats.totalTokensOut)}
             </p>
           </div>
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-widest mb-0.5">Avg duration</p>
-            <p className="text-sm font-medium text-gray-300">{formatDuration(stats.avgSessionDuration)}</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-0.5">Avg duration</p>
+            <p className="text-sm font-medium text-foreground/80">{formatDuration(stats.avgSessionDuration)}</p>
           </div>
         </div>
       )}

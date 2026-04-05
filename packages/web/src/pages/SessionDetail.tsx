@@ -54,8 +54,8 @@ function EditableSessionTitle({ session }: { session: Session }) {
         onBlur={() => void save()}
         onKeyDown={onKeyDown}
         disabled={saving}
-        className="w-full bg-gray-700 border border-blue-500 rounded-lg px-3 py-1
-                   text-xl font-bold text-gray-100 focus:outline-none disabled:opacity-60"
+        className="w-full bg-muted border border-ring rounded-lg px-3 py-1
+                   text-xl font-bold text-foreground focus:outline-none disabled:opacity-60"
         placeholder="Session name..."
       />
     )
@@ -63,11 +63,11 @@ function EditableSessionTitle({ session }: { session: Session }) {
 
   return (
     <button onClick={startEdit} className="group flex items-center gap-2 min-w-0 overflow-hidden text-left w-full">
-      <h1 className="text-xl font-bold text-gray-100 truncate">
+      <h1 className="text-xl font-bold text-foreground truncate">
         {session.summary ?? 'Untitled session'}
       </h1>
       <svg
-        className="w-4 h-4 text-gray-600 group-hover:text-gray-400 shrink-0 transition-colors"
+        className="w-4 h-4 text-muted-foreground/60 group-hover:text-muted-foreground shrink-0 transition-colors"
         fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
       >
         <path strokeLinecap="round" strokeLinejoin="round"
@@ -93,7 +93,7 @@ export default function SessionDetail() {
     else navigate('/sessions')
   }
 
-  if (!id) return <p className="p-8 text-gray-400">Session ID missing</p>
+  if (!id) return <p className="p-8 text-muted-foreground">Session ID missing</p>
 
   if (isLoading) {
     return (
@@ -108,7 +108,7 @@ export default function SessionDetail() {
       <div className="p-8 space-y-3">
         <p className="text-red-400">Error loading: {(error as Error).message}</p>
         <button onClick={goBack}
-          className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg text-sm border border-gray-600 transition-colors">
+          className="px-4 py-2 bg-card hover:bg-muted text-foreground/80 rounded-lg text-sm border border-border transition-colors">
           ← Back
         </button>
       </div>
@@ -125,8 +125,8 @@ export default function SessionDetail() {
       <div className="flex items-center gap-4">
         <button
           onClick={goBack}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 active:bg-gray-600
-                     text-gray-200 rounded-xl text-sm font-medium border border-gray-600
+          className="flex items-center gap-2 px-4 py-2 bg-card hover:bg-muted active:bg-accent
+                     text-foreground/80 rounded-xl text-sm font-medium border border-border
                      transition-colors shadow-sm shrink-0"
         >
           <span className="text-base">←</span>
@@ -135,10 +135,10 @@ export default function SessionDetail() {
 
         <div className="min-w-0 flex-1">
           <EditableSessionTitle session={session} />
-          <p className="text-sm text-gray-400 truncate mt-0.5">
+          <p className="text-sm text-muted-foreground truncate mt-0.5">
             {session.projectName && <span className="mr-2">{session.projectName} ·</span>}
             {new Date(session.startedAt).toLocaleString('en-US')}
-            {session.model && <span className="ml-2 text-gray-500">· {getModelLabel(session.model)}</span>}
+            {session.model && <span className="ml-2 text-muted-foreground">· {getModelLabel(session.model)}</span>}
           </p>
         </div>
       </div>

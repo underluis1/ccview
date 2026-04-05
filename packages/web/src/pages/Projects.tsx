@@ -44,7 +44,7 @@ const MODEL_COLORS: Record<string, string> = {
   opus:    'text-violet-400 bg-violet-900/30 border-violet-700/50',
   sonnet:  'text-blue-400   bg-blue-900/30   border-blue-700/50',
   haiku:   'text-emerald-400 bg-emerald-900/30 border-emerald-700/50',
-  unknown: 'text-gray-400   bg-gray-800      border-gray-700',
+  unknown: 'text-muted-foreground   bg-card      border-border',
 }
 
 function ModelBadge({ model }: { model: string }) {
@@ -62,12 +62,12 @@ function ModelBreakdownTooltip({ breakdown, x, y }: { breakdown: ModelBreakdown[
   if (!breakdown.length) return null
   return createPortal(
     <div
-      className="fixed z-[9999] w-64 bg-gray-900 border border-gray-700 rounded-xl p-3 shadow-2xl text-xs pointer-events-none"
+      className="fixed z-[9999] w-64 bg-background border border-border rounded-xl p-3 shadow-2xl text-xs pointer-events-none"
       style={{ left: x, top: y - 8, transform: 'translate(-50%, -100%)' }}
     >
-      <p className="text-gray-500 uppercase tracking-widest mb-2 text-[10px]">Model breakdown</p>
+      <p className="text-muted-foreground uppercase tracking-widest mb-2 text-[10px]">Model breakdown</p>
       {breakdown.map((b) => (
-        <div key={b.model} className="flex items-center justify-between py-1 border-b border-gray-800 last:border-0">
+        <div key={b.model} className="flex items-center justify-between py-1 border-b border-border last:border-0">
           <ModelBadge model={b.model} />
           <div className="text-right">
             <span className="text-blue-400 mr-2">{formatTokens(b.tokensIn + b.tokensOut)} tok</span>
@@ -75,7 +75,7 @@ function ModelBreakdownTooltip({ breakdown, x, y }: { breakdown: ModelBreakdown[
           </div>
         </div>
       ))}
-      <p className="mt-2 text-gray-600 leading-tight">
+      <p className="mt-2 text-muted-foreground/60 leading-tight">
         * Anthropic API pricing. Does not reflect Claude Code subscription cost.
       </p>
     </div>,
@@ -145,7 +145,7 @@ export default function Projects() {
   }
 
   function SortIcon({ k }: { k: SortKey }) {
-    if (sortKey !== k) return <span className="text-gray-600 ml-1">↕</span>
+    if (sortKey !== k) return <span className="text-muted-foreground/60 ml-1">↕</span>
     return <span className="text-blue-400 ml-1">{sortDir === 'desc' ? '↓' : '↑'}</span>
   }
 
@@ -158,7 +158,7 @@ export default function Projects() {
     return (
       <div className="p-6 space-y-3">
         {[...Array(6)].map((_, i) => (
-          <div key={i} className="h-14 bg-gray-800 rounded-xl animate-pulse" />
+          <div key={i} className="h-14 bg-card rounded-xl animate-pulse" />
         ))}
       </div>
     )
@@ -177,24 +177,24 @@ export default function Projects() {
       {/* Totals overview */}
       {totals && (
         <div className="grid grid-cols-4 gap-4">
-          <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-            <p className="text-xs text-gray-400 uppercase tracking-wide">Total projects</p>
-            <p className="text-3xl font-bold text-gray-100 mt-1">{data?.length ?? 0}</p>
+          <div className="bg-card rounded-xl p-4 border border-border">
+            <p className="text-xs text-muted-foreground uppercase tracking-wide">Total projects</p>
+            <p className="text-3xl font-bold text-foreground mt-1">{data?.length ?? 0}</p>
           </div>
-          <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-            <p className="text-xs text-gray-400 uppercase tracking-wide">Total tokens</p>
+          <div className="bg-card rounded-xl p-4 border border-border">
+            <p className="text-xs text-muted-foreground uppercase tracking-wide">Total tokens</p>
             <p className="text-3xl font-bold text-blue-400 mt-1">{formatTokens(totals.tokens)}</p>
-            <p className="text-xs text-gray-500 mt-1">{totals.sessions} total sessions</p>
+            <p className="text-xs text-muted-foreground mt-1">{totals.sessions} total sessions</p>
           </div>
-          <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-            <p className="text-xs text-gray-400 uppercase tracking-wide">Total sessions</p>
+          <div className="bg-card rounded-xl p-4 border border-border">
+            <p className="text-xs text-muted-foreground uppercase tracking-wide">Total sessions</p>
             <p className="text-3xl font-bold text-violet-400 mt-1">{totals.sessions}</p>
-            <p className="text-xs text-gray-500 mt-1">across all projects</p>
+            <p className="text-xs text-muted-foreground mt-1">across all projects</p>
           </div>
-          <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-            <p className="text-xs text-gray-400 uppercase tracking-wide">Estimated cost (API)</p>
+          <div className="bg-card rounded-xl p-4 border border-border">
+            <p className="text-xs text-muted-foreground uppercase tracking-wide">Estimated cost (API)</p>
             <p className="text-3xl font-bold text-amber-400 mt-1">{formatCost(totals.cost)}</p>
-            <p className="text-xs text-gray-500 mt-1">API pricing, not CC plan</p>
+            <p className="text-xs text-muted-foreground mt-1">API pricing, not CC plan</p>
           </div>
         </div>
       )}
@@ -214,30 +214,30 @@ export default function Projects() {
         placeholder="Search project..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-blue-500"
+        className="w-full bg-input border border-border rounded-lg px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-ring"
       />
 
       {/* Table */}
-      <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
+      <div className="bg-card rounded-xl border border-border overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-700 text-xs text-gray-400 uppercase tracking-wide">
-              <th className="text-left px-4 py-3 cursor-pointer hover:text-gray-200" onClick={() => toggleSort('name')}>
+            <tr className="border-b border-border text-xs text-muted-foreground uppercase tracking-wide">
+              <th className="text-left px-4 py-3 cursor-pointer hover:text-foreground" onClick={() => toggleSort('name')}>
                 Project <SortIcon k="name" />
               </th>
-              <th className="text-right px-4 py-3 cursor-pointer hover:text-gray-200" onClick={() => toggleSort('totalSessions')}>
+              <th className="text-right px-4 py-3 cursor-pointer hover:text-foreground" onClick={() => toggleSort('totalSessions')}>
                 Sessions <SortIcon k="totalSessions" />
               </th>
-              <th className="text-right px-4 py-3 cursor-pointer hover:text-gray-200" onClick={() => toggleSort('totalTokens')}>
+              <th className="text-right px-4 py-3 cursor-pointer hover:text-foreground" onClick={() => toggleSort('totalTokens')}>
                 Tokens <SortIcon k="totalTokens" />
               </th>
-              <th className="text-right px-4 py-3 cursor-pointer hover:text-gray-200" onClick={() => toggleSort('tokenPct')}>
+              <th className="text-right px-4 py-3 cursor-pointer hover:text-foreground" onClick={() => toggleSort('tokenPct')}>
                 % total <SortIcon k="tokenPct" />
               </th>
-              <th className="text-right px-4 py-3 cursor-pointer hover:text-gray-200" onClick={() => toggleSort('totalCostUsd')}>
+              <th className="text-right px-4 py-3 cursor-pointer hover:text-foreground" onClick={() => toggleSort('totalCostUsd')}>
                 Est. API cost <SortIcon k="totalCostUsd" />
               </th>
-              <th className="text-right px-4 py-3 cursor-pointer hover:text-gray-200" onClick={() => toggleSort('lastSessionAt')}>
+              <th className="text-right px-4 py-3 cursor-pointer hover:text-foreground" onClick={() => toggleSort('lastSessionAt')}>
                 Last session <SortIcon k="lastSessionAt" />
               </th>
             </tr>
@@ -248,7 +248,7 @@ export default function Projects() {
               return (
                 <tr
                   key={project.path}
-                  className="border-b border-gray-700/50 hover:bg-gray-700/40 transition-colors cursor-pointer"
+                  className="border-b border-border hover:bg-accent transition-colors cursor-pointer"
                   onClick={() => navigate(`/sessions?project=${encodeURIComponent(project.name)}`)}
                 >
                   <td className="px-4 py-3">
@@ -257,8 +257,8 @@ export default function Projects() {
                         backgroundColor: tokenPct > 50 ? '#ef4444' : tokenPct > 20 ? '#f59e0b' : '#10b981'
                       }} />
                       <div>
-                        <p className="font-medium text-gray-100">{project.name || '(root)'}</p>
-                        <p className="text-xs text-gray-500 truncate max-w-xs">{project.path}</p>
+                        <p className="font-medium text-foreground">{project.name || '(root)'}</p>
+                        <p className="text-xs text-muted-foreground truncate max-w-xs">{project.path}</p>
                         <div className="mt-1 flex items-center gap-1 flex-wrap">
                           {(project.modelBreakdown ?? []).filter((b) => b.model && b.model !== 'unknown').map((b) => (
                             <ModelBadge key={b.model} model={b.model} />
@@ -267,7 +267,7 @@ export default function Projects() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-right tabular-nums text-gray-300">
+                  <td className="px-4 py-3 text-right tabular-nums text-foreground/80">
                     {project.totalSessions}
                   </td>
                   <td className="px-4 py-3 text-right tabular-nums text-blue-400">
@@ -275,7 +275,7 @@ export default function Projects() {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <div className="w-20 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                      <div className="w-20 h-1.5 bg-muted rounded-full overflow-hidden">
                         <div
                           className="h-full rounded-full"
                           style={{
@@ -284,7 +284,7 @@ export default function Projects() {
                           }}
                         />
                       </div>
-                      <span className="text-xs text-gray-400 w-8 text-right">{Math.round(tokenPct)}%</span>
+                      <span className="text-xs text-muted-foreground w-8 text-right">{Math.round(tokenPct)}%</span>
                     </div>
                   </td>
                   <td className="px-4 py-3 text-right">
@@ -304,7 +304,7 @@ export default function Projects() {
                       )}
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-right text-gray-400 text-xs">
+                  <td className="px-4 py-3 text-right text-muted-foreground text-xs">
                     {formatDate(project.lastSessionAt)}
                   </td>
                 </tr>
@@ -313,11 +313,11 @@ export default function Projects() {
           </tbody>
         </table>
         {projects.length === 0 && (
-          <div className="text-center py-12 text-gray-500">No projects found</div>
+          <div className="text-center py-12 text-muted-foreground">No projects found</div>
         )}
       </div>
 
-      <p className="text-xs text-gray-600">
+      <p className="text-xs text-muted-foreground/60">
         Hover the estimated cost to see the model breakdown.
         Prices are based on public Anthropic API rates, not the Claude Code subscription plan.
       </p>
