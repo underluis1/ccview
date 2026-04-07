@@ -30,7 +30,7 @@ npx @ccview/cli@latest
 Or pin a specific version:
 
 ```bash
-npx @ccview/cli@0.1.19
+npx @ccview/cli@latest
 ```
 
 ## Options
